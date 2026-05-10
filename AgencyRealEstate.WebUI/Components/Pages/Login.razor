@@ -12,161 +12,299 @@
 @inject IJSRuntime JS
 @attribute [AllowAnonymous]
 
-<div class="page-background-clean">
+<div class="page-background">
+    <!-- Живой градиентный фон -->
+    <div class="gradient-bg"></div>
+    
+    <!-- Плавающие частицы -->
     <div class="particles-container">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
+        @for (int i = 0; i < 15; i++)
+        {
+            <div class="particle" style="@GetParticleStyle(i)"></div>
+        }
     </div>
 
-    <div class="container-form-clean">
+    <!-- Стеклянная карточка -->
+    <div class="glass-container">
         
-        <div class="auth-logo stagger-1" @onclick='() => Navigation.NavigateTo("/")'>
+        <!-- Логотип с анимацией -->
+        <div class="auth-logo" @onclick='() => Navigation.NavigateTo("/")'>
             <div class="logo-icon">
-                <i class="fas fa-home"></i>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
             </div>
             <div class="logo-text">РеалтиПро</div>
         </div>
 
-        <div class="header-subtitle stagger-2">
+        <div class="header-subtitle">
             <p>Добро пожаловать в систему</p>
+            <span class="subtitle-line"></span>
         </div>
 
-        <div class="form-clean-card stagger-3">
+        <div class="form-card">
             
-            <div class="toggle-wrapper stagger-4">
-                <div class="toggle-bg @(!isLogin ? "right" : "")"></div>
-                <button type="button" class="toggle-btn @(isLogin ? "active" : "")" @onclick="() => isLogin = true">Вход</button>
-                <button type="button" class="toggle-btn @(!isLogin ? "active" : "")" @onclick="() => isLogin = false">Регистрация</button>
+            <!-- Переключатель с анимацией скольжения -->
+            <div class="toggle-wrapper">
+                <div class="toggle-slider" style="@(isLogin ? "transform: translateX(0)" : "transform: translateX(100%)")"></div>
+                <button type="button" class="toggle-btn @(isLogin ? "active" : "")" @onclick="() => SwitchMode(true)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                        <polyline points="10 17 15 12 10 7"></polyline>
+                        <line x1="15" y1="12" x2="3" y2="12"></line>
+                    </svg>
+                    Вход
+                </button>
+                <button type="button" class="toggle-btn @(!isLogin ? "active" : "")" @onclick="() => SwitchMode(false)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                    Регистрация
+                </button>
             </div>
 
             <div class="form-content">
                 @if (isLogin)
                 {
-                    <EditForm Model="loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
+                    <EditForm Model="loginModel" OnValidSubmit="HandleLogin" FormName="loginForm" class="animate-in">
                         <DataAnnotationsValidator />
                         
-                        <div class="form-group stagger-5">
-                            <InputText @bind-Value="loginModel.Login" placeholder="Логин" class="input-clean" />
+                        <div class="input-group">
+                            <div class="input-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                            <InputText @bind-Value="loginModel.Login" placeholder="Логин" class="input-field" />
                             <ValidationMessage For="@(() => loginModel.Login)" class="validation-msg" />
                         </div>
 
-                        <div class="form-group stagger-6">
-                            <InputText @bind-Value="loginModel.Password" type="password" placeholder="Пароль" class="input-clean" />
+                        <div class="input-group">
+                            <div class="input-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                            </div>
+                            <InputText @bind-Value="loginModel.Password" type="password" placeholder="Пароль" class="input-field" />
                             <ValidationMessage For="@(() => loginModel.Password)" class="validation-msg" />
                         </div>
                         
-                        <div class="bottom-row login-bottom stagger-7">
-                            <button type="submit" class="btn-submit-clean">
-                                Войти <i class="fas fa-arrow-right ms-2"></i>
-                            </button>
+                        <div class="options-row">
+                            <label class="remember-me">
+                                <input type="checkbox" />
+                                <span class="checkmark"></span>
+                                <span>Запомнить меня</span>
+                            </label>
                             <a href="#" @onclick:preventDefault class="forgot-link">Забыли пароль?</a>
                         </div>
                         
+                        <button type="submit" class="btn-submit" disabled="@isLoading">
+                            @if (isLoading)
+                            {
+                                <span class="spinner"></span>
+                                <span>Вход...</span>
+                            }
+                            else
+                            {
+                                <span>Войти</span>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            }
+                        </button>
+                        
                         @if (!string.IsNullOrEmpty(errorMessage))
                         {
-                            <div class="alert-msg error-msg stagger-8"><i class="fas fa-exclamation-circle"></i> @errorMessage</div>
+                            <div class="alert error animate-shake">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                                @errorMessage
+                            </div>
                         }
                     </EditForm>
                 }
                 else
                 {
-                    <EditForm Model="registerModel" OnValidSubmit="HandleRegister" FormName="registerForm">
+                    <EditForm Model="registerModel" OnValidSubmit="HandleRegister" FormName="registerForm" class="animate-in">
                         <DataAnnotationsValidator />
                         
-                        <div class="form-group stagger-5">
-                            <InputText @bind-Value="registerModel.FullName" placeholder="Полное имя" class="input-clean" />
+                        <div class="input-group">
+                            <div class="input-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                            <InputText @bind-Value="registerModel.FullName" placeholder="Полное имя" class="input-field" />
                             <ValidationMessage For="@(() => registerModel.FullName)" class="validation-msg" />
                         </div>
 
-                        <div class="form-group stagger-6">
-                            <InputText @bind-Value="registerModel.Login" placeholder="Логин" class="input-clean" />
+                        <div class="input-group">
+                            <div class="input-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                            <InputText @bind-Value="registerModel.Login" placeholder="Логин" class="input-field" />
                             <ValidationMessage For="@(() => registerModel.Login)" class="validation-msg" />
                         </div>
 
-                        <div class="form-group stagger-7">
-                            <InputText @bind-Value="registerModel.Email" placeholder="Электронная почта" class="input-clean" />
+                        <div class="input-group">
+                            <div class="input-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                    <polyline points="22,6 12,13 2,6"></polyline>
+                                </svg>
+                            </div>
+                            <InputText @bind-Value="registerModel.Email" placeholder="Электронная почта" class="input-field" />
                             <ValidationMessage For="@(() => registerModel.Email)" class="validation-msg" />
                         </div>
 
-                        <div class="form-group stagger-8">
-                            <InputText @bind-Value="registerModel.Phone" placeholder="Телефон" class="input-clean" />
+                        <div class="input-group">
+                            <div class="input-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                </svg>
+                            </div>
+                            <InputText @bind-Value="registerModel.Phone" placeholder="Телефон" class="input-field" />
                             <ValidationMessage For="@(() => registerModel.Phone)" class="validation-msg" />
                         </div>
 
-                        <div class="form-group stagger-9">
-                            <InputText @bind-Value="registerModel.Password" type="password" placeholder="Пароль" class="input-clean" />
+                        <div class="input-group">
+                            <div class="input-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                            </div>
+                            <InputText @bind-Value="registerModel.Password" type="password" placeholder="Пароль" class="input-field" />
                             <ValidationMessage For="@(() => registerModel.Password)" class="validation-msg" />
                         </div>
                         
-                        <div class="form-group stagger-10 terms-group">
+                        <div class="terms-group">
                             <label class="custom-checkbox">
                                 <InputCheckbox @bind-Value="registerModel.AcceptTerms" />
                                 <span class="checkmark"></span>
                                 <span class="terms-text">
-                                    Я принимаю <a href="#" class="purple-link">Условия использования</a> и <a href="#" class="purple-link">Политику конфиденциальности</a>
+                                    Я принимаю <a href="#" class="link-purple">Условия использования</a> и <a href="#" class="link-purple">Политику конфиденциальности</a>
                                 </span>
                             </label>
                             <ValidationMessage For="@(() => registerModel.AcceptTerms)" class="validation-msg" />
                         </div>
                         
-                        <div class="bottom-row register-bottom stagger-11">
-                            <button type="submit" class="btn-submit-clean w-100">
-                                Зарегистрироваться <i class="fas fa-user-plus ms-2"></i>
-                            </button>
-                        </div>
+                        <button type="submit" class="btn-submit w-100" disabled="@isLoading">
+                            @if (isLoading)
+                            {
+                                <span class="spinner"></span>
+                                <span>Регистрация...</span>
+                            }
+                            else
+                            {
+                                <span>Зарегистрироваться</span>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            }
+                        </button>
 
                         @if (!string.IsNullOrEmpty(successMessage))
                         {
-                            <div class="alert-msg success-msg stagger-12"><i class="fas fa-check-circle"></i> @successMessage</div>
+                            <div class="alert success animate-in">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                @successMessage
+                            </div>
                         }
                         @if (!string.IsNullOrEmpty(errorMessage))
                         {
-                            <div class="alert-msg error-msg stagger-12"><i class="fas fa-exclamation-circle"></i> @errorMessage</div>
+                            <div class="alert error animate-shake">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                                @errorMessage
+                            </div>
                         }
                     </EditForm>
                 }
             </div>
+        </div>
+        
+        <!-- Декоративная подпись -->
+        <div class="footer-text">
+            <span>© 2026 РеалтиПро</span>
+            <span class="dot">•</span>
+            <span>Защищено SSL</span>
         </div>
     </div>
 </div>
 
 <style>
     :root {
-        --primary-purple: #8b5cf6;
-        --primary-purple-hover: #7c3aed;
-        --text-main: #1f2937;
-        --text-muted: #6b7280;
-        --bg-page: #fdf2f8; /* Легкий розоватый оттенок для фона */
-        --bg-card: #ffffff;
-        --border-color: #e5e7eb;
-        --input-focus-ring: rgba(139, 92, 246, 0.15);
+        --primary: #7c3aed;
+        --primary-hover: #6d28d9;
+        --primary-light: rgba(124, 58, 237, 0.1);
+        --primary-glow: rgba(124, 58, 237, 0.3);
+        --text-main: #1e1b4b;
+        --text-secondary: #64748b;
+        --text-muted: #94a3b8;
+        --bg-gradient-1: #f5f3ff;
+        --bg-gradient-2: #ede9fe;
+        --bg-gradient-3: #ddd6fe;
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.5);
+        --glass-shadow: 0 8px 32px rgba(124, 58, 237, 0.1);
+        --error: #ef4444;
+        --success: #10b981;
     }
 
-    .page-background-clean {
-        /* Обновлен градиент фона как на изображении */
-        background: radial-gradient(circle at center, #ffffff 0%, #fef5fb 40%, #f4e8ff 100%);
+    /* === Фон === */
+    .page-background {
         min-height: 100vh;
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family: 'Inter', 'Roboto', sans-serif;
+        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
         padding: 20px;
         position: relative;
         overflow: hidden;
+        background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 50%, var(--bg-gradient-3) 100%);
     }
 
-    /* === Анимация фона с кружками === */
+    .gradient-bg {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 30% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+        animation: gradientMove 20s ease-in-out infinite;
+    }
+
+    @@keyframes gradientMove {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        33% { transform: translate(2%, 2%) rotate(1deg); }
+        66% { transform: translate(-1%, 1%) rotate(-1deg); }
+    }
+
+    /* === Частицы === */
     .particles-container {
         position: absolute;
         top: 0;
@@ -180,125 +318,139 @@
 
     .particle {
         position: absolute;
-        bottom: -50px;
-        background: rgba(216, 150, 255, 0.5); /* Фиолетово-розовый цвет кружков */
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(168, 85, 247, 0.2));
         border-radius: 50%;
-        filter: blur(2px);
-        animation: floatUp 15s infinite linear;
+        filter: blur(1px);
+        animation: floatParticle linear infinite;
     }
 
-    @@keyframes floatUp {
-        0% { transform: translateY(0) scale(0.8); opacity: 0; }
-        10% { opacity: 0.7; }
-        50% { transform: translateY(-50vh) scale(1.2); opacity: 0.5; }
-        90% { opacity: 0; }
-        100% { transform: translateY(-100vh) scale(1); opacity: 0; }
+    @@keyframes floatParticle {
+        0% { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity: 0; }
+        10% { opacity: 0.8; }
+        90% { opacity: 0.8; }
+        100% { transform: translateY(-100vh) rotate(720deg) scale(1.5); opacity: 0; }
     }
 
-    /* Случайные параметры для каждого кружка */
-    .particle:nth-child(1) { left: 10%; width: 12px; height: 12px; animation-duration: 12s; animation-delay: 0s; }
-    .particle:nth-child(2) { left: 25%; width: 18px; height: 18px; animation-duration: 18s; animation-delay: 2s; }
-    .particle:nth-child(3) { left: 45%; width: 8px; height: 8px; animation-duration: 14s; animation-delay: 4s; }
-    .particle:nth-child(4) { left: 65%; width: 22px; height: 22px; animation-duration: 20s; animation-delay: 1s; }
-    .particle:nth-child(5) { left: 85%; width: 15px; height: 15px; animation-duration: 16s; animation-delay: 5s; }
-    .particle:nth-child(6) { left: 15%; width: 25px; height: 25px; animation-duration: 22s; animation-delay: 7s; }
-    .particle:nth-child(7) { left: 55%; width: 10px; height: 10px; animation-duration: 15s; animation-delay: 3s; }
-    .particle:nth-child(8) { left: 95%; width: 14px; height: 14px; animation-duration: 19s; animation-delay: 8s; }
-    .particle:nth-child(9) { left: 35%; width: 20px; height: 20px; animation-duration: 17s; animation-delay: 6s; }
-    .particle:nth-child(10) { left: 75%; width: 12px; height: 12px; animation-duration: 21s; animation-delay: 9s; }
-    .particle:nth-child(11) { left: 5%; width: 16px; height: 16px; animation-duration: 13s; animation-delay: 11s; }
-    .particle:nth-child(12) { left: 80%; width: 9px; height: 9px; animation-duration: 24s; animation-delay: 10s; }
-
-
-    .container-form-clean {
+    /* === Стеклянный контейнер === */
+    .glass-container {
         width: 100%;
-        max-width: 440px;
+        max-width: 420px;
         z-index: 10;
-        perspective: 1000px;
+        position: relative;
     }
 
-    /* Анимация каскадного появления сверху вниз */
-    @@keyframes cascadeDown {
-        0% { opacity: 0; transform: translateY(-30px); }
-        100% { opacity: 1; transform: translateY(0); }
-    }
-
-    .stagger-1 { opacity: 0; animation: cascadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.1s; }
-    .stagger-2 { opacity: 0; animation: cascadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.2s; }
-    .stagger-3 { opacity: 0; animation: cascadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.3s; }
-    .stagger-4 { opacity: 0; animation: cascadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.4s; }
-    .stagger-5 { opacity: 0; animation: cascadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.5s; }
-    .stagger-6 { opacity: 0; animation: cascadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.6s; }
-    .stagger-7 { opacity: 0; animation: cascadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.7s; }
-    .stagger-8 { opacity: 0; animation: cascadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.8s; }
-    .stagger-9 { opacity: 0; animation: cascadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.9s; }
-    .stagger-10 { opacity: 0; animation: cascadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 1.0s; }
-    .stagger-11 { opacity: 0; animation: cascadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 1.1s; }
-    .stagger-12 { opacity: 0; animation: cascadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 1.2s; }
-
-    /* Логотип с эффектом наведения */
+    /* === Логотип === */
     .auth-logo {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 12px;
+        gap: 14px;
         cursor: pointer;
-        margin-bottom: 10px;
-        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        margin-bottom: 16px;
+        transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        animation: fadeInDown 0.8s ease-out;
     }
 
     .auth-logo:hover {
-        transform: scale(1.15);
+        transform: scale(1.08) translateY(-2px);
     }
 
     .logo-icon {
-        width: 44px;
-        height: 44px;
-        border: 2px solid var(--primary-purple);
-        border-radius: 12px;
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary), #a78bfa);
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--primary-purple);
-        font-size: 1.3rem;
+        color: white;
+        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        transition: box-shadow 0.3s ease;
+    }
+
+    .auth-logo:hover .logo-icon {
+        box-shadow: 0 6px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    .logo-icon svg {
+        width: 24px;
+        height: 24px;
     }
 
     .logo-text {
-        color: var(--primary-purple);
-        font-size: 1.8rem;
+        color: var(--text-main);
+        font-size: 2rem;
         font-weight: 800;
-        letter-spacing: -0.5px;
+        letter-spacing: -1px;
+        background: linear-gradient(135deg, var(--primary), #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
+    /* === Подзаголовок === */
     .header-subtitle {
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 32px;
+        animation: fadeInDown 0.8s ease-out 0.1s both;
     }
 
     .header-subtitle p {
-        color: var(--text-muted);
+        color: var(--text-secondary);
         font-size: 1rem;
-        margin: 0;
+        margin: 0 0 12px 0;
         font-weight: 500;
     }
 
-    /* Карточка */
-    .form-clean-card {
-        background: var(--bg-card);
-        padding: 40px;
-        border-radius: 24px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+    .subtitle-line {
+        display: block;
+        width: 40px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), #a78bfa);
+        border-radius: 2px;
+        margin: 0 auto;
+        animation: expandLine 1s ease-out 0.5s both;
     }
 
-    /* Переключатель */
+    @@keyframes expandLine {
+        from { width: 0; opacity: 0; }
+        to { width: 40px; opacity: 1; }
+    }
+
+    /* === Карточка === */
+    .form-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 40px;
+        border-radius: 24px;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--glass-shadow), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    /* === Переключатель === */
     .toggle-wrapper {
         display: flex;
         position: relative;
-        background: #f3f4f6;
-        border-radius: 12px;
-        margin: 0 auto 30px auto;
-        padding: 5px;
+        background: rgba(243, 244, 246, 0.6);
+        border-radius: 14px;
+        margin-bottom: 28px;
+        padding: 4px;
+        border: 1px solid rgba(229, 231, 235, 0.5);
+    }
+
+    .toggle-slider {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: calc(50% - 4px);
+        height: calc(100% - 8px);
+        background: linear-gradient(135deg, var(--primary), #8b5cf6);
+        border-radius: 10px;
+        transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        z-index: 1;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
     }
 
     .toggle-btn {
@@ -306,164 +458,251 @@
         padding: 12px 0;
         background: transparent;
         border: none;
-        color: var(--text-muted);
+        color: var(--text-secondary);
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         cursor: pointer;
         z-index: 2;
         transition: color 0.3s ease;
         text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        position: relative;
     }
 
     .toggle-btn.active {
         color: #ffffff;
     }
 
-    .toggle-bg {
+    .toggle-btn svg {
+        transition: transform 0.3s ease;
+    }
+
+    .toggle-btn:hover svg {
+        transform: scale(1.1);
+    }
+
+    /* === Поля ввода === */
+    .input-group {
+        margin-bottom: 16px;
+        position: relative;
+        animation: fadeInUp 0.6s ease-out both;
+    }
+
+    .input-group:nth-child(1) { animation-delay: 0.3s; }
+    .input-group:nth-child(2) { animation-delay: 0.4s; }
+    .input-group:nth-child(3) { animation-delay: 0.5s; }
+    .input-group:nth-child(4) { animation-delay: 0.6s; }
+    .input-group:nth-child(5) { animation-delay: 0.7s; }
+    .input-group:nth-child(6) { animation-delay: 0.8s; }
+
+    .input-icon {
         position: absolute;
-        top: 5px;
-        left: 5px;
-        width: calc(50% - 5px);
-        height: calc(100% - 10px);
-        background: var(--primary-purple);
-        border-radius: 8px;
-        transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-        z-index: 1;
-        box-shadow: 0 4px 10px rgba(139, 92, 246, 0.2);
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        z-index: 2;
+        transition: color 0.3s ease;
+        pointer-events: none;
     }
 
-    .toggle-bg.right {
-        transform: translateX(100%);
-    }
-
-    .form-group {
-        margin-bottom: 18px;
-    }
-
-    /* Поля ввода */
-    .input-clean {
-        background: #ffffff !important;
+    .input-field {
+        background: rgba(255, 255, 255, 0.8) !important;
         width: 100%;
         box-sizing: border-box;
-        padding: 14px 20px;
-        border: 1px solid var(--border-color) !important;
+        padding: 14px 16px 14px 48px;
+        border: 1.5px solid #e2e8f0 !important;
         border-radius: 12px !important;
         color: var(--text-main) !important;
         font-size: 0.95rem;
         font-weight: 500;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .input-clean::placeholder {
-        color: #9ca3af;
+    .input-field::placeholder {
+        color: #94a3b8;
     }
 
-    .input-clean:focus {
+    .input-field:focus {
         outline: none;
-        border-color: var(--primary-purple) !important;
-        box-shadow: 0 0 0 4px var(--input-focus-ring);
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 4px var(--primary-light), 0 1px 3px rgba(0,0,0,0.05);
+        background: #ffffff !important;
+    }
+
+    .input-field:focus + .input-icon,
+    .input-group:focus-within .input-icon {
+        color: var(--primary);
     }
 
     .validation-msg {
-        color: #ef4444;
+        color: var(--error);
         font-size: 0.8rem;
         margin-top: 6px;
         display: block;
-        margin-left: 5px;
+        margin-left: 4px;
+        animation: shake 0.5s ease-in-out;
     }
 
-    /* === Стили для Чекбокса Условий === */
-    .terms-group {
+    /* === Опции === */
+    .options-row {
         display: flex;
-        flex-direction: column;
-        margin-top: 10px;
-        margin-bottom: 25px;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px 0;
+        font-size: 0.85rem;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        user-select: none;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .remember-me input {
+        display: none;
+    }
+
+    .remember-me .checkmark {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #cbd5e1;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .remember-me input:checked + .checkmark {
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .remember-me input:checked + .checkmark::after {
+        content: '';
+        width: 5px;
+        height: 9px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+        margin-bottom: 2px;
+    }
+
+    .forgot-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .forgot-link::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--primary);
+        transition: width 0.3s ease;
+    }
+
+    .forgot-link:hover::after {
+        width: 100%;
+    }
+
+    /* === Чекбокс условий === */
+    .terms-group {
+        margin: 20px 0;
     }
 
     .custom-checkbox {
         display: flex;
         align-items: flex-start;
-        position: relative;
+        gap: 12px;
         cursor: pointer;
         user-select: none;
-        gap: 12px;
     }
 
     .custom-checkbox input {
-        position: absolute;
-        opacity: 0;
-        cursor: pointer;
-        height: 0;
-        width: 0;
-    }
-
-    .checkmark {
-        height: 22px;
-        width: 22px;
-        background-color: #3f3f46; /* Темно-серый квадрат как на фото */
-        border-radius: 4px;
-        display: inline-block;
-        position: relative;
-        flex-shrink: 0;
-        margin-top: 2px;
-        transition: background-color 0.2s ease;
-    }
-
-    .custom-checkbox input:checked ~ .checkmark {
-        background-color: var(--primary-purple); /* Закрашивается в фиолетовый при клике */
-    }
-
-    .checkmark:after {
-        content: "";
-        position: absolute;
         display: none;
     }
 
-    .custom-checkbox input:checked ~ .checkmark:after {
-        display: block;
+    .custom-checkbox .checkmark {
+        width: 22px;
+        height: 22px;
+        background: #f1f5f9;
+        border: 2px solid #e2e8f0;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 2px;
+        transition: all 0.2s ease;
     }
 
-    .custom-checkbox .checkmark:after {
-        left: 8px;
-        top: 4px;
+    .custom-checkbox input:checked + .checkmark {
+        background: var(--primary);
+        border-color: var(--primary);
+        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+    }
+
+    .custom-checkbox input:checked + .checkmark::after {
+        content: '';
         width: 5px;
-        height: 10px;
+        height: 9px;
         border: solid white;
         border-width: 0 2px 2px 0;
         transform: rotate(45deg);
+        margin-bottom: 2px;
     }
 
     .terms-text {
-        font-size: 0.95rem;
-        color: var(--text-main);
+        font-size: 0.9rem;
+        color: var(--text-secondary);
         line-height: 1.5;
-        font-weight: 400;
     }
 
-    .purple-link {
-        color: var(--primary-purple);
+    .link-purple {
+        color: var(--primary);
         text-decoration: none;
-        transition: color 0.2s;
+        font-weight: 600;
+        transition: all 0.2s;
+        position: relative;
     }
 
-    .purple-link:hover {
-        color: var(--primary-purple-hover);
-        text-decoration: underline;
+    .link-purple:hover {
+        color: var(--primary-hover);
     }
 
-    .bottom-row {
-        display: flex;
-        align-items: center;
-        margin-top: 25px;
+    .link-purple::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 0;
+        height: 1.5px;
+        background: var(--primary);
+        transition: width 0.3s ease;
     }
 
-    .login-bottom {
-        justify-content: space-between;
+    .link-purple:hover::after {
+        width: 100%;
     }
 
-    /* Кнопки */
-    .btn-submit-clean {
-        background: var(--primary-purple) !important;
+    /* === Кнопка === */
+    .btn-submit {
+        width: 100%;
+        background: linear-gradient(135deg, var(--primary), #8b5cf6) !important;
         color: #ffffff !important;
         border: none;
         border-radius: 12px;
@@ -471,37 +710,63 @@
         font-weight: 600;
         font-size: 1rem;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        gap: 10px;
+        margin-top: 8px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
     }
 
-    .btn-submit-clean:hover {
-        background: var(--primary-purple-hover) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(139, 92, 246, 0.3);
-    }
-
-    .w-100 {
+    .btn-submit::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
         width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
     }
 
-    .forgot-link {
-        text-decoration: none;
-        color: var(--text-muted);
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: color 0.3s ease;
+    .btn-submit:hover::before {
+        left: 100%;
     }
 
-    .forgot-link:hover {
-        color: var(--primary-purple);
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
     }
 
-    /* Оповещения */
-    .alert-msg {
-        margin-top: 20px;
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* === Алерты === */
+    .alert {
+        margin-top: 16px;
         padding: 12px 16px;
         border-radius: 10px;
         font-size: 0.9rem;
@@ -509,29 +774,88 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        animation: fadeInUp 0.4s ease-out;
     }
 
-    .error-msg {
-        background: #fef2f2;
-        color: #ef4444;
-        border: 1px solid #fee2e2;
+    .alert.error {
+        background: rgba(239, 68, 68, 0.08);
+        color: var(--error);
+        border: 1px solid rgba(239, 68, 68, 0.15);
     }
 
-    .success-msg {
-        background: #f0fdf4;
-        color: #22c55e;
-        border: 1px solid #dcfce3;
+    .alert.success {
+        background: rgba(16, 185, 129, 0.08);
+        color: var(--success);
+        border: 1px solid rgba(16, 185, 129, 0.15);
     }
 
-    @@media (max-width: 576px) {
-        .form-clean-card {
-            padding: 30px 20px;
+    /* === Футер === */
+    .footer-text {
+        text-align: center;
+        margin-top: 24px;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        animation: fadeIn 1s ease-out 0.6s both;
+    }
+
+    .footer-text .dot {
+        color: var(--primary);
+        font-weight: bold;
+    }
+
+    /* === Анимации === */
+    @@keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @@keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @@keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    .animate-shake {
+        animation: shake 0.5s ease-in-out;
+    }
+
+    .animate-in {
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    /* === Адаптив === */
+    @@media (max-width: 480px) {
+        .form-card {
+            padding: 28px 20px;
+        }
+        
+        .logo-text {
+            font-size: 1.6rem;
+        }
+        
+        .toggle-btn {
+            font-size: 0.85rem;
         }
     }
 </style>
 
 @code {
     private bool isLogin = true;
+    private bool isLoading = false;
     private LoginRequest loginModel = new();
     private RegisterRequest registerModel = new();
     private string? errorMessage;
@@ -565,9 +889,26 @@
         [Required(ErrorMessage = "Введите пароль")]
         public string Password { get; set; } = "";
 
-        // Валидация на то, что галочка должна быть отмечена (true)
-        [Range(typeof(bool), "true", "true", ErrorMessage = "Необходимо принять условия использования и политику конфиденциальности")]
+        [Range(typeof(bool), "true", "true", ErrorMessage = "Необходимо принять условия использования")]
         public bool AcceptTerms { get; set; }
+    }
+
+    private string GetParticleStyle(int index)
+    {
+        var random = new Random(index);
+        var left = random.Next(5, 95);
+        var size = random.Next(8, 30);
+        var duration = random.Next(15, 30);
+        var delay = random.Next(0, 20);
+        
+        return $"left: {left}%; width: {size}px; height: {size}px; animation-duration: {duration}s; animation-delay: {delay}s;";
+    }
+
+    private void SwitchMode(bool login)
+    {
+        isLogin = login;
+        errorMessage = null;
+        successMessage = null;
     }
 
     protected override async Task OnInitializedAsync()
@@ -581,6 +922,7 @@
 
     private async Task HandleLogin()
     {
+        isLoading = true;
         errorMessage = null;
         try
         {
@@ -610,10 +952,15 @@
         {
             errorMessage = $"Ошибка соединения: {ex.Message}";
         }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private async Task HandleRegister()
     {
+        isLoading = true;
         errorMessage = null;
         successMessage = null;
 
@@ -635,6 +982,10 @@
         catch (Exception ex)
         {
             errorMessage = $"Ошибка соединения: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 
