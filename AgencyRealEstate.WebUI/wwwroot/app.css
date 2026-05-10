@@ -1,14 +1,95 @@
+/* === ТЕМЫ ОФОРМЛЕНИЯ === */
+:root {
+    /* Светлая тема (по умолчанию) */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f7fa;
+    --bg-card: #ffffff;
+    --bg-nav: rgba(255, 255, 255, 0.95);
+    --bg-input: #f0f2f5;
+    --bg-modal: #ffffff;
+    --bg-dropdown: #ffffff;
+    
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a4a4a;
+    --text-muted: #6b7280;
+    --text-inverse: #ffffff;
+    
+    --border-color: #e2e8f0;
+    --border-light: rgba(0, 0, 0, 0.05);
+    --border-medium: rgba(0, 0, 0, 0.1);
+    
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 15px 40px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 25px 60px rgba(0, 0, 0, 0.2);
+    
+    --nav-border: #e2e8f0;
+    --card-hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    
+    --accent-gold: #d4a017;
+    --accent-green: #10b981;
+    --accent-yellow: #fbbf24;
+    
+    /* Фиолетовые акценты для светлой темы */
+    --primary: #7c3aed;
+    --primary-light: #8b5cf6;
+    --primary-dark: #6d28d9;
+    --primary-bg: #f3e8ff;
+}
+
+[data-theme="dark"] {
+    /* Темная тема с темно-фиолетовыми оттенками */
+    --bg-primary: #0f0a1e;
+    --bg-secondary: #1a1033;
+    --bg-card: #1e1540;
+    --bg-nav: rgba(15, 10, 30, 0.95);
+    --bg-input: #2d1f4a;
+    --bg-modal: #1e1540;
+    --bg-dropdown: #1a1033;
+    
+    --text-primary: #f0e6ff;
+    --text-secondary: #c7b8e0;
+    --text-muted: #8b7fb8;
+    --text-inverse: #0f0a1e;
+    
+    --border-color: rgba(124, 58, 237, 0.2);
+    --border-light: rgba(124, 58, 237, 0.1);
+    --border-medium: rgba(124, 58, 237, 0.25);
+    
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 15px 40px rgba(0, 0, 0, 0.6);
+    --shadow-xl: 0 25px 60px rgba(0, 0, 0, 0.7);
+    
+    --nav-border: rgba(124, 58, 237, 0.2);
+    --card-hover-shadow: 0 20px 40px rgba(124, 58, 237, 0.3);
+    
+    --accent-gold: #f39c12;
+    --accent-green: #4ade80;
+    --accent-yellow: #fbbf24;
+    
+    /* Фиолетовые акценты для темной темы */
+    --primary: #8b5cf6;
+    --primary-light: #a78bfa;
+    --primary-dark: #7c3aed;
+    --primary-bg: rgba(124, 58, 237, 0.2);
+    
+    --purple-glow: rgba(124, 58, 237, 0.5);
+    --purple-light: rgba(139, 92, 246, 0.3);
+}
+
 /* Базовые настройки */
 body {
-    background-color: #212121;
-    color: #ffffff;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     font-family: 'Inter', sans-serif;
     margin: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* --- НАВИГАЦИЯ --- */
 .nav-bar {
-    background: rgba(30, 30, 30, 0.8);
+    background: var(--bg-nav);
     backdrop-filter: blur(10px);
     height: 70px;
     display: flex;
@@ -16,7 +97,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 1000;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-light);
 }
 
 .nav-content {
@@ -42,25 +123,25 @@ body {
 
 .nav-item {
     cursor: pointer;
-    color: #ccc;
+    color: var(--text-secondary);
     font-weight: 500;
     transition: 0.3s;
 }
 
     .nav-item:hover {
-        color: #fff;
+        color: var(--text-primary);
     }
 
 .dropdown-menu {
     position: absolute;
     top: 100%;
     right: 0;
-    background: #2d2d2d;
+    background: var(--bg-dropdown);
     min-width: 220px;
     border-radius: 15px;
     padding: 10px 0;
     list-style: none;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    box-shadow: var(--shadow-lg);
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px); /* Начальная позиция выше */
@@ -76,19 +157,19 @@ body {
 .dropdown-menu li a {
     display: block;
     padding: 12px 20px;
-    color: #eee;
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.95rem;
 }
 
     .dropdown-menu li a:hover {
-        background: #3d3d3d;
-        color: #fff;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
     }
 
 .divider {
     height: 1px;
-    background: rgba(255,255,255,0.05);
+    background: var(--border-light);
     margin: 5px 0;
 }
 
@@ -106,7 +187,7 @@ body {
 }
 
 .hero-header p {
-    color: #888;
+    color: var(--text-muted);
     font-size: 1rem;
     margin-bottom: 40px;
 }
@@ -118,16 +199,16 @@ body {
 }
 
 .luxury-card {
-    background: #2d2d2d;
+    background: var(--bg-card);
     border-radius: 30px; /* Сильное закругление как на скрине */
     overflow: hidden;
     transition: 0.3s ease;
-    border: 1px solid rgba(255,255,255,0.03);
+    border: 1px solid var(--border-light);
 }
 
     .luxury-card:hover {
         transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        box-shadow: var(--card-hover-shadow);
     }
 
 .card-image-box {
@@ -158,7 +239,7 @@ body {
 }
 
 .card-location-subtitle {
-    color: #777;
+    color: var(--text-muted);
     font-size: 0.9rem;
     margin-bottom: 15px;
     text-transform: uppercase;
@@ -169,12 +250,13 @@ body {
     font-size: 1.6rem;
     font-weight: 700;
     margin-bottom: 10px;
+    color: var(--text-primary);
 }
 
 .card-features-row {
     display: flex;
     gap: 15px;
-    color: #999;
+    color: var(--text-muted);
     font-size: 0.85rem;
     margin-bottom: 25px;
 }
@@ -182,50 +264,50 @@ body {
 .card-btn-pill {
     display: block;
     text-align: center;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid var(--border-medium);
     padding: 14px;
     border-radius: 50px; /* Кнопка-пилюля */
-    color: #fff;
+    color: var(--text-primary);
     font-weight: 600;
     transition: 0.3s;
 }
 
     .card-btn-pill:hover {
-        background: #fff;
-        color: #000;
+        background: var(--text-primary);
+        color: var(--bg-primary);
     }
 
 /* --- СТИЛЬ ФОРМ (ВХОД / РЕГИСТРАЦИЯ) --- */
 .input-solid {
-    background: #f0f2f5 !important; /* Светлые инпуты как на скрине */
+    background: var(--bg-input) !important;
     border: none !important;
     border-radius: 50px !important;
     padding: 16px 25px !important;
     margin-bottom: 15px;
-    color: #333 !important;
+    color: var(--text-primary) !important;
     width: 100%;
 }
 
 .form-1 {
-    background: rgba(45, 45, 45, 0.7);
+    background: var(--bg-card);
     backdrop-filter: blur(15px);
     border-radius: 40px; /* Закругление формы */
     padding: 50px;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    box-shadow: var(--shadow-xl);
 }
 
 .submit-pill {
     background: transparent;
-    border: 1px solid rgba(255,255,255,0.2);
+    border: 1px solid var(--border-medium);
     border-radius: 50px;
     padding: 10px 30px;
-    color: #fff;
+    color: var(--text-primary);
     cursor: pointer;
     transition: 0.3s;
 }
 
     .submit-pill:hover {
-        background: rgba(255,255,255,0.1);
+        background: var(--border-medium);
     }
 /* Бейджи статусов поверх фото */
 .status-badge-overlay {
@@ -238,16 +320,16 @@ body {
     font-weight: 700;
     text-transform: uppercase;
     backdrop-filter: blur(10px);
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: var(--border-medium);
+    border: 1px solid var(--border-medium);
 }
 
     .status-badge-overlay.available {
-        color: #4ade80;
+        color: var(--accent-green);
     }
 
     .status-badge-overlay.reserved {
-        color: #fbbf24;
+        color: var(--accent-yellow);
     }
 
 /* Страница объекта */
@@ -256,7 +338,7 @@ body {
 }
 
 .back-link {
-    color: #888;
+    color: var(--text-muted);
     text-decoration: none;
     margin-bottom: 15px;
     display: block;
@@ -265,7 +347,7 @@ body {
 .price-hero {
     font-size: 2.5rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--text-primary);
     margin-top: 10px;
 }
 
@@ -300,7 +382,7 @@ body {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
-    background: #2d2d2d;
+    background: var(--bg-card);
     padding: 30px;
     border-radius: 30px;
     margin-top: 30px;
@@ -312,13 +394,13 @@ body {
 }
 
 .spec-label {
-    color: #777;
+    color: var(--text-muted);
     font-size: 0.85rem;
     text-transform: uppercase;
 }
 
 .spec-value {
-    color: #fff;
+    color: var(--text-primary);
     font-size: 1.1rem;
     font-weight: 600;
 }
@@ -329,7 +411,7 @@ body {
 }
 
 .booking-card {
-    background: #2d2d2d;
+    background: var(--bg-card);
     padding: 35px;
     border-radius: 40px;
     border: 1px solid rgba(255,255,255,0.05);
@@ -347,7 +429,7 @@ body {
     .form-group label {
         display: block;
         margin-bottom: 8px;
-        color: #aaa;
+        color: var(--text-muted);
         font-size: 0.9rem;
         margin-left: 15px;
     }
@@ -355,11 +437,11 @@ body {
 
 
 .mud-day {
-    color: white !important;
+    color: var(--text-primary) !important;
 }
 
 .mud-selected {
-    background-color: rgba(255,255,255,0.2) !important;
+    background-color: var(--primary) !important;
 }
 
 /* Блокировка прошедших дат визуально */
@@ -371,7 +453,7 @@ body {
     display: flex;
     align-items: center;
     gap: 30px;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--bg-card-transparent, rgba(255, 255, 255, 0.03));
     padding: 25px;
     border-radius: 30px;
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -380,20 +462,20 @@ body {
 .price-tag-large {
     font-size: 2.8rem;
     font-weight: 900;
-    color: #fff;
+    color: var(--text-inverse);
     white-space: nowrap;
     letter-spacing: -1px;
 }
 
     .price-tag-large .currency {
-        color: #f39c12; /* Золотистый акцент для валюты */
+        color: var(--accent-gold); /* Золотистый акцент для валюты */
         margin-left: 5px;
     }
 
 .property-main-info .street-title {
     font-size: 1.5rem;
     margin: 0;
-    color: #e0e0e0;
+    color: var(--text-secondary);
     font-weight: 500;
 }
 
@@ -401,7 +483,7 @@ body {
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 2px;
-    color: #888;
+    color: var(--text-muted);
     display: block;
     margin-bottom: 5px;
 }
@@ -441,7 +523,7 @@ body {
 .custom-label {
     font-size: 0.8rem;
     font-weight: 600;
-    color: #888;
+    color: var(--text-muted);
     margin-left: 10px;
     margin-bottom: 5px;
     display: block;
@@ -463,12 +545,12 @@ body {
 .price-tag-large {
     font-size: 2.8rem;
     font-weight: 900;
-    color: #fff;
+    color: var(--text-inverse);
     line-height: 1;
 }
 
     .price-tag-large .currency {
-        color: #f39c12;
+        color: var(--accent-gold);
         font-weight: 300;
     }
 
@@ -477,10 +559,10 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    background: rgba(74, 222, 128, 0.1);
+    background: var(--primary-bg);
     padding: 10px 20px;
     border-radius: 50px;
-    color: #4ade80;
+    color: var(--accent-green);
     font-size: 0.85rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -490,7 +572,7 @@ body {
 .pulse-dot {
     width: 8px;
     height: 8px;
-    background: #4ade80;
+    background: var(--accent-green);
     border-radius: 50%;
     box-shadow: 0 0 0 rgba(74, 222, 128, 0.4);
     animation: pulse-green 2s infinite;
@@ -512,7 +594,7 @@ body {
 
 /* --- БЛОК ОПИСАНИЯ С АДРЕСОМ --- */
 .description-section {
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--bg-card-transparent, rgba(255, 255, 255, 0.02));
     padding: 40px;
     border-radius: 35px;
     margin-bottom: 30px;
@@ -523,7 +605,7 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
-    color: #f39c12; /* Цвет иконки */
+    color: var(--accent-gold); /* Цвет иконки */
 }
 
     .address-context i {
@@ -534,14 +616,14 @@ body {
     font-size: 2rem;
     font-weight: 700;
     margin: 0;
-    color: #ffffff;
+    color: var(--text-inverse);
     letter-spacing: -0.5px;
 }
 
 .premium-divider {
     height: 2px;
     width: 50px;
-    background: #f39c12;
+    background: var(--accent-gold);
     margin: 25px 0;
     border-radius: 2px;
 }
@@ -549,13 +631,13 @@ body {
 .section-subtitle {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #888;
+    color: var(--text-muted);
     margin-bottom: 15px;
 }
 
 .description-text {
     line-height: 1.8;
-    color: #cccccc;
+    color: var(--text-secondary);
     font-size: 1.1rem;
     margin: 0;
 }
@@ -574,20 +656,20 @@ body {
 }
 /* --- ADMIN PANEL: USERS GRID --- */
 .admin-title {
-    color: #ffffff;
+    color: var(--text-inverse);
     font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 5px;
 }
 
 .admin-subtitle {
-    color: #888;
+    color: var(--text-muted);
     font-size: 0.95rem;
     margin: 0;
 }
 
 .action-add-btn {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-card-transparent, rgba(255, 255, 255, 0.05));
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -599,7 +681,7 @@ body {
 
 /* Карточка пользователя */
 .user-card {
-    background: #333333; /* Цвет как на скрине */
+    background: var(--bg-card); /* Цвет как на скрине */
     border-radius: 20px;
     padding: 20px 25px;
     display: flex;
@@ -611,8 +693,8 @@ body {
 
     .user-card:hover {
         transform: translateY(-5px) scale(1.02);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-        background: #3a3a3a;
+        box-shadow: var(--shadow-lg);
+        background: var(--bg-secondary);
     }
 
 /* Аватарка в карточке */
@@ -644,11 +726,11 @@ body {
 }
 
     .status-dot.active {
-        background-color: #10b981;
+        background-color: var(--accent-green);
     }
     /* Зеленый */
     .status-dot.inactive {
-        background-color: #6b7280;
+        background-color: var(--text-muted);
     }
 /* Серый */
 
@@ -658,14 +740,14 @@ body {
 }
 
 .user-card-name {
-    color: #ffffff;
+    color: var(--text-inverse);
     font-size: 1.1rem;
     font-weight: 600;
     margin: 0 0 2px 0;
 }
 
 .user-card-email {
-    color: #9ca3af;
+    color: var(--text-muted);
     font-size: 0.85rem;
     margin: 0 0 12px 0;
 }
@@ -678,8 +760,8 @@ body {
 
 /* Бейджики ролей */
 .badge-role, .badge-status {
-    background: rgba(255, 255, 255, 0.1);
-    color: #e5e7eb;
+    background: var(--bg-card-transparent, rgba(255, 255, 255, 0.1));
+    color: var(--text-secondary);
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 0.75rem;
@@ -687,16 +769,16 @@ body {
 }
 
 .badge-status {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--bg-card-transparent, rgba(255, 255, 255, 0.15));
 }
 
     .badge-status.badge-inactive {
-        background: rgba(255, 255, 255, 0.05);
-        color: #888;
+        background: var(--bg-card-transparent, rgba(255, 255, 255, 0.05));
+        color: var(--text-muted);
     }
 
 .user-card-date {
-    color: #6b7280;
+    color: var(--text-muted);
     font-size: 0.8rem;
 }
 
@@ -708,7 +790,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--bg-modal-backdrop, rgba(0, 0, 0, 0.6));
     backdrop-filter: blur(8px);
     display: flex;
     justify-content: center;
@@ -718,7 +800,7 @@ body {
 }
 
 .modal-card-custom {
-    background: #333333;
+    background: var(--bg-card);
     padding: 40px;
     border-radius: 25px;
     width: 420px;
@@ -742,14 +824,14 @@ body {
     }
 
 .modal-name {
-    color: #fff;
+    color: var(--text-inverse);
     font-size: 1.4rem;
     font-weight: 700;
     margin-bottom: 5px;
 }
 
 .modal-email {
-    color: #9ca3af;
+    color: var(--text-muted);
     font-size: 0.95rem;
     margin-bottom: 20px;
 }
@@ -762,7 +844,7 @@ body {
 }
 
 .modal-joined-date {
-    color: #6b7280;
+    color: var(--text-muted);
     font-size: 0.85rem;
     margin-bottom: 30px;
 }
@@ -785,33 +867,33 @@ body {
 }
 
 .btn-activate {
-    background: #4d4d4d;
-    color: #fff;
+    background: var(--bg-secondary);
+    color: var(--text-inverse);
 }
 
     .btn-activate:hover {
-        background: #5a5a5a;
+        background: var(--bg-secondary);
     }
 
 .btn-edit {
     background: transparent;
-    border: 1px solid #ff4d4d; /* Стилизовано под Delete со скрина, но делает Edit */
-    color: #ff4d4d;
+    border: 1px solid var(--accent-red, #ef4444); /* Стилизовано под Delete со скрина, но делает Edit */
+    color: var(--accent-red, #ef4444);
 }
 
     .btn-edit:hover {
-        background: rgba(255, 77, 77, 0.1);
+        background: var(--primary-bg);
     }
 
 .btn-save {
-    background: #ffffff;
-    color: #000000;
+    background: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 .btn-cancel {
     background: transparent;
     border: 1px solid rgba(255,255,255,0.2);
-    color: #fff;
+    color: var(--text-inverse);
 }
 
 /* Анимации для модалки */
@@ -848,7 +930,7 @@ body {
 
 /* 1. Тип объекта над фото */
 .property-type-tag {
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-muted);
     text-transform: uppercase;
     font-size: 0.85rem;
     letter-spacing: 2px;
@@ -862,7 +944,7 @@ body {
     height: 500px; /* Можно настроить или использовать aspect-ratio: 16/9 */
     border-radius: 24px;
     overflow: hidden;
-    background: #1a1a1a;
+    background: var(--bg-card);
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
@@ -892,7 +974,7 @@ body {
 }
 
     .thumb-wrapper.active {
-        border-color: #f39c12;
+        border-color: var(--accent-gold);
     }
 
     .thumb-wrapper img {
@@ -909,18 +991,18 @@ body {
 
 
 .mud-input-control.mud-input-input-control {
-    background: #2d2d2d !important; /* Убирает прозрачность инпута */
+    background: var(--bg-input) !important;
     border-radius: 12px;
 }
 
 
 
 .mud-day {
-    color: white !important;
+    color: var(--text-primary) !important;
 }
 
 .mud-selected {
-    background-color: #f39c12 !important;
+    background-color: var(--primary) !important;
 }
 
 /* 4. Очистка бара цены */
@@ -940,7 +1022,7 @@ body {
 }
 
     .auto-grow-field textarea {
-        color: #333 !important;
+        color: var(--text-primary) !important;
         line-height: 1.5;
         padding-top: 5px;
     }
@@ -956,8 +1038,8 @@ body {
 
 /* Кнопка отправки заявки */
 .btn-submit-showing {
-    background: #ffffff;
-    color: #000;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     border: none;
     padding: 16px;
     font-size: 1.1rem;
@@ -965,8 +1047,8 @@ body {
 }
 
     .btn-submit-showing:hover {
-        background: #f39c12;
-        color: #fff;
+        background: var(--accent-gold);
+        color: var(--text-inverse);
         transform: scale(1.02);
     }
 
@@ -975,19 +1057,19 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    color: #888;
+    color: var(--text-muted);
     text-decoration: none;
     font-weight: 500;
     transition: 0.3s;
 }
 
     .back-link:hover {
-        color: #fff;
+        color: var(--text-inverse);
     }
 
 /* Тег типа объекта (над фото) */
 .property-type-tag {
-    color: #f39c12;
+    color: var(--accent-gold);
     text-transform: uppercase;
     letter-spacing: 2px;
     font-size: 0.8rem;
@@ -1016,7 +1098,7 @@ body {
 }
 
     .thumb-wrapper.active {
-        border-color: #f39c12;
+        border-color: var(--accent-gold);
     }
 
     .thumb-wrapper img {
@@ -1026,7 +1108,7 @@ body {
     }
 /* Контейнер-обертка для выравнивания пикеров MudBlazor */
 .input-wrapper-elite {
-    background: #e9ecef !important; /* Тот же серый, что в Add User */
+    background: var(--bg-input) !important;
     border-radius: 50px;
     padding: 5px 20px;
     display: flex;
@@ -1038,7 +1120,7 @@ body {
 .custom-label {
     font-size: 0.75rem;
     font-weight: 700;
-    color: #888;
+    color: var(--text-muted);
     margin-left: 15px;
     margin-bottom: 8px;
     display: block;
@@ -1061,14 +1143,14 @@ body {
 
 /* Сама карточка формы */
 .booking-card {
-    background: #2a2a2a; /* Темный фон как в User Management */
+    background: var(--bg-card); /* Темный фон как в User Management */
     padding: 35px;
     border-radius: 30px;
     border: 1px solid rgba(255,255,255,0.05);
 }
 /* Общий стиль для всех контейнеров ввода (пилюль) */
 .elite-input-container, .elite-field {
-    background-color: #f0f2f5 !important; /* Светло-серый фон как в Add User */
+    background-color: var(--bg-input) !important;
     border-radius: 50px !important;
     border: none !important;
     padding: 12px 25px !important;
@@ -1081,7 +1163,7 @@ body {
 
 /* Стилизация текстовых полей (Имя, Телефон, Комментарий) */
 .elite-field {
-    color: #333 !important;
+    color: var(--text-primary) !important;
     font-size: 1rem;
     font-weight: 500;
 }
@@ -1095,7 +1177,7 @@ body {
 /* Убираем черные фоны внутри MudBlazor компонентов */
 .mud-input-transparent .mud-input-slot {
     background: transparent !important;
-    color: #333 !important;
+    color: var(--text-primary) !important;
     padding: 0 !important;
 }
 
@@ -1118,7 +1200,7 @@ body {
 .custom-label {
     font-size: 0.7rem;
     font-weight: 800;
-    color: #999;
+    color: var(--text-muted);
     margin-left: 15px;
     margin-bottom: 6px;
     display: block;
@@ -1127,7 +1209,7 @@ body {
 
 /* Сама карточка в сайдбаре */
 .booking-card {
-    background: #2a2a2a; /* Темно-серый фон карточки */
+    background: var(--bg-card); /* Темно-серый фон карточки */
     padding: 30px;
     border-radius: 35px;
     border: 1px solid rgba(255,255,255,0.05);
@@ -1163,14 +1245,14 @@ body {
         font-size: 3.5rem;
         font-weight: 800;
         margin-bottom: 15px;
-        background: linear-gradient(45deg, #fff, #f39c12);
+        background: linear-gradient(45deg, var(--text-inverse), var(--accent-gold));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
 
 /* Поисковая строка в стиле Premium */
 .search-bar-premium {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--bg-card-transparent, rgba(255, 255, 255, 0.1));
     backdrop-filter: blur(15px);
     padding: 10px;
     border-radius: 50px;
@@ -1183,17 +1265,17 @@ body {
         background: transparent;
         border: none;
         padding: 15px 25px;
-        color: white;
+        color: var(--text-inverse);
         width: 100%;
         outline: none;
     }
 
 .search-btn {
-    background: #f39c12;
+    background: var(--accent-gold);
     border: none;
     padding: 0 35px;
     border-radius: 40px;
-    color: #000;
+    color: var(--text-primary);
     font-weight: 700;
     cursor: pointer;
     transition: 0.3s;
@@ -1214,7 +1296,7 @@ body {
 
 .pill {
     padding: 8px 20px;
-    background: #2d2d2d;
+    background: var(--bg-input);
     border-radius: 20px;
     cursor: pointer;
     font-size: 0.9rem;
@@ -1222,12 +1304,12 @@ body {
 }
 
     .pill.active, .pill:hover {
-        background: #f39c12;
-        color: #000;
+        background: var(--accent-gold);
+        color: var(--text-primary);
     }
 
 .card-category {
-    color: #f39c12;
+    color: var(--accent-gold);
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 1.5px;
@@ -1237,7 +1319,7 @@ body {
 .card-specs {
     display: flex;
     gap: 15px;
-    color: #888;
+    color: var(--text-muted);
     font-size: 0.85rem;
     margin: 15px 0;
 }
@@ -1253,25 +1335,25 @@ body {
 .btn-view-circle {
     width: 45px;
     height: 45px;
-    background: #f39c12;
+    background: var(--accent-gold);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #000;
+    color: var(--text-primary);
     text-decoration: none;
     transition: 0.3s;
 }
 
     .btn-view-circle:hover {
         transform: scale(1.1);
-        background: #fff;
+        background: var(--bg-primary);
     }
 
 /* Скелетон */
 .skeleton-card {
     height: 400px;
-    background: linear-gradient(90deg, #2d2d2d 25%, #3d3d3d 50%, #2d2d2d 75%);
+    background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-card) 50%, var(--bg-secondary) 75%);
     background-size: 200% 100%;
     animation: loading 1.5s infinite;
     border-radius: 30px;
@@ -1290,7 +1372,7 @@ body {
 
 /* Заголовок секции */
 .section-subtitle {
-    color: #888;
+    color: var(--text-muted);
     margin-top: 5px;
     font-size: 1rem;
 }
@@ -1300,7 +1382,7 @@ body {
     grid-column: 1 / -1;
     text-align: center;
     padding: 100px;
-    color: #555;
+    color: var(--text-muted);
     font-style: italic;
 }
 /* Фиксируем высоту и поведение сетки */
@@ -1316,7 +1398,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%; /* Занимает всю высоту ячейки сетки */
-    background: #242424;
+    background: var(--bg-card);
     border-radius: 25px;
     overflow: hidden;
     transition: transform 0.3s ease;
@@ -1384,7 +1466,7 @@ body {
 }
 
 .elite-label {
-    color: #888;
+    color: var(--text-muted);
     font-size: 0.85rem;
     font-weight: 600;
     margin-left: 4px;
@@ -1403,24 +1485,24 @@ body {
 
 /* Эффект при наведении и фокусе */
 .elite-input:hover {
-    border-color: #444;
+    border-color: var(--border-medium);
 }
 
 .elite-input:focus {
     outline: none;
-    background: #252525;
-    border-color: #f39c12; /* Фирменный оранжевый из лого */
-    box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.1);
+    background: var(--bg-secondary);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-bg);
 }
 
     .elite-input:focus + .input-icon,
     .input-wrapper:focus-within .input-icon {
-        color: #f39c12;
+        color: var(--accent-gold);
     }
 
 /* Плейсхолдер */
 .elite-input::placeholder {
-    color: #555;
+    color: var(--text-muted);
 }
 
 /* Ошибки валидации */
