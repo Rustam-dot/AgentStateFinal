@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AgencyRealEstate.API/AgencyRealEstate.API.csproj" />
+  <Project Path="AgencyRealEstate.WebUI/AgencyRealEstate.WebUI.csproj" />
+</Solution>

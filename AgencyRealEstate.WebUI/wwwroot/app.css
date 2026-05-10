@@ -1,0 +1,1439 @@
+/* Базовые настройки */
+body {
+    background-color: #212121;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+}
+
+/* --- НАВИГАЦИЯ --- */
+.nav-bar {
+    background: rgba(30, 30, 30, 0.8);
+    backdrop-filter: blur(10px);
+    height: 70px;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.nav-content {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* ВЫПАДАЮЩЕЕ МЕНЮ (СВЕРХУ ВНИЗ) */
+.dropdown-container {
+    position: relative;
+    padding: 10px 0;
+}
+
+.nav-item {
+    cursor: pointer;
+    color: #ccc;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+    .nav-item:hover {
+        color: #fff;
+    }
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #2d2d2d;
+    min-width: 220px;
+    border-radius: 15px;
+    padding: 10px 0;
+    list-style: none;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px); /* Начальная позиция выше */
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.dropdown-container:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(10px); /* Плавно едет вниз */
+}
+
+.dropdown-menu li a {
+    display: block;
+    padding: 12px 20px;
+    color: #eee;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+    .dropdown-menu li a:hover {
+        background: #3d3d3d;
+        color: #fff;
+    }
+
+.divider {
+    height: 1px;
+    background: rgba(255,255,255,0.05);
+    margin: 5px 0;
+}
+
+/* --- ГЛАВНАЯ СТРАНИЦА И КАРТОЧКИ --- */
+.page-wrapper {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.hero-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.hero-header p {
+    color: #888;
+    font-size: 1rem;
+    margin-bottom: 40px;
+}
+
+.property-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+}
+
+.luxury-card {
+    background: #2d2d2d;
+    border-radius: 30px; /* Сильное закругление как на скрине */
+    overflow: hidden;
+    transition: 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.03);
+}
+
+    .luxury-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
+.card-image-box {
+    height: 230px;
+    width: 100%;
+    overflow: hidden;
+}
+
+    .card-image-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: 0.5s;
+    }
+
+.luxury-card:hover .card-image-box img {
+    transform: scale(1.05);
+}
+
+.card-body-luxury {
+    padding: 30px;
+}
+
+.card-address-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+}
+
+.card-location-subtitle {
+    color: #777;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.card-price-tag {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.card-features-row {
+    display: flex;
+    gap: 15px;
+    color: #999;
+    font-size: 0.85rem;
+    margin-bottom: 25px;
+}
+
+.card-btn-pill {
+    display: block;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 14px;
+    border-radius: 50px; /* Кнопка-пилюля */
+    color: #fff;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+    .card-btn-pill:hover {
+        background: #fff;
+        color: #000;
+    }
+
+/* --- СТИЛЬ ФОРМ (ВХОД / РЕГИСТРАЦИЯ) --- */
+.input-solid {
+    background: #f0f2f5 !important; /* Светлые инпуты как на скрине */
+    border: none !important;
+    border-radius: 50px !important;
+    padding: 16px 25px !important;
+    margin-bottom: 15px;
+    color: #333 !important;
+    width: 100%;
+}
+
+.form-1 {
+    background: rgba(45, 45, 45, 0.7);
+    backdrop-filter: blur(15px);
+    border-radius: 40px; /* Закругление формы */
+    padding: 50px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+}
+
+.submit-pill {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50px;
+    padding: 10px 30px;
+    color: #fff;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+    .submit-pill:hover {
+        background: rgba(255,255,255,0.1);
+    }
+/* Бейджи статусов поверх фото */
+.status-badge-overlay {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+    .status-badge-overlay.available {
+        color: #4ade80;
+    }
+
+    .status-badge-overlay.reserved {
+        color: #fbbf24;
+    }
+
+/* Страница объекта */
+.property-detail-header {
+    margin-bottom: 40px;
+}
+
+.back-link {
+    color: #888;
+    text-decoration: none;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.price-hero {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #fff;
+    margin-top: 10px;
+}
+
+.featured-image {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    border-radius: 40px;
+    margin-bottom: 15px;
+}
+
+.thumbnails-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.thumb {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+    .thumb:hover {
+        opacity: 0.7;
+    }
+
+.specs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    background: #2d2d2d;
+    padding: 30px;
+    border-radius: 30px;
+    margin-top: 30px;
+}
+
+.spec-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.spec-label {
+    color: #777;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.spec-value {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.sidebar-booking {
+    position: sticky;
+    top: 100px;
+}
+
+.booking-card {
+    background: #2d2d2d;
+    padding: 35px;
+    border-radius: 40px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+    .booking-card h4 {
+        margin-bottom: 25px;
+        font-weight: 700;
+    }
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #aaa;
+        font-size: 0.9rem;
+        margin-left: 15px;
+    }
+
+
+
+.mud-day {
+    color: white !important;
+}
+
+.mud-selected {
+    background-color: rgba(255,255,255,0.2) !important;
+}
+
+/* Блокировка прошедших дат визуально */
+.mud-day-disabled {
+    opacity: 0.2;
+}
+/* Блок цены и улицы под фото */
+.price-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 25px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.price-tag-large {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: #fff;
+    white-space: nowrap;
+    letter-spacing: -1px;
+}
+
+    .price-tag-large .currency {
+        color: #f39c12; /* Золотистый акцент для валюты */
+        margin-left: 5px;
+    }
+
+.property-main-info .street-title {
+    font-size: 1.5rem;
+    margin: 0;
+    color: #e0e0e0;
+    font-weight: 500;
+}
+
+.badge-type-alt {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #888;
+    display: block;
+    margin-bottom: 5px;
+}
+
+
+
+@media (max-width: 768px) {
+    .price-action-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .price-tag-large {
+        font-size: 2rem;
+    }
+}
+/* Контейнер для формы */
+.booking-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Две колонки одинаковой ширины */
+    gap: 30px;
+}
+
+/* Если экран маленький — возвращаем в одну колонку */
+@media (max-width: 992px) {
+    .booking-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .col-lg-4 {
+        width: 100%;
+    }
+}
+
+/* Настройка лейблов */
+.custom-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #888;
+    margin-left: 10px;
+    margin-bottom: 5px;
+    display: block;
+    text-transform: uppercase;
+}
+/* --- ПРЕМИУМ БАР ЦЕНЫ --- */
+.price-action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+    padding: 25px 35px;
+    border-radius: 30px;
+    border-left: 4px solid #f39c12; /* Золотой акцент */
+    margin-bottom: 30px;
+    backdrop-filter: blur(5px);
+}
+
+.price-tag-large {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+}
+
+    .price-tag-large .currency {
+        color: #f39c12;
+        font-weight: 300;
+    }
+
+/* Статус с анимацией пульсации */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(74, 222, 128, 0.1);
+    padding: 10px 20px;
+    border-radius: 50px;
+    color: #4ade80;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    box-shadow: 0 0 0 rgba(74, 222, 128, 0.4);
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0% {
+        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(74, 222, 128, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+    }
+}
+
+/* --- БЛОК ОПИСАНИЯ С АДРЕСОМ --- */
+.description-section {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 40px;
+    border-radius: 35px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.address-context {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #f39c12; /* Цвет иконки */
+}
+
+    .address-context i {
+        font-size: 1.5rem;
+    }
+
+.street-title-main {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+}
+
+.premium-divider {
+    height: 2px;
+    width: 50px;
+    background: #f39c12;
+    margin: 25px 0;
+    border-radius: 2px;
+}
+
+.section-subtitle {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #888;
+    margin-bottom: 15px;
+}
+
+.description-text {
+    line-height: 1.8;
+    color: #cccccc;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .price-action-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .price-tag-large {
+        font-size: 2.2rem;
+    }
+}
+/* --- ADMIN PANEL: USERS GRID --- */
+.admin-title {
+    color: #ffffff;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.admin-subtitle {
+    color: #888;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.action-add-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.users-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+/* Карточка пользователя */
+.user-card {
+    background: #333333; /* Цвет как на скрине */
+    border-radius: 20px;
+    padding: 20px 25px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+    .user-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        background: #3a3a3a;
+    }
+
+/* Аватарка в карточке */
+.user-card-avatar {
+    position: relative;
+    width: 65px;
+    height: 65px;
+    margin-right: 20px;
+    flex-shrink: 0;
+}
+
+    .user-card-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+/* Индикатор статуса */
+.status-dot {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid #333333;
+    transition: background-color 0.3s;
+}
+
+    .status-dot.active {
+        background-color: #10b981;
+    }
+    /* Зеленый */
+    .status-dot.inactive {
+        background-color: #6b7280;
+    }
+/* Серый */
+
+/* Информация в карточке */
+.user-card-info {
+    flex-grow: 1;
+}
+
+.user-card-name {
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 2px 0;
+}
+
+.user-card-email {
+    color: #9ca3af;
+    font-size: 0.85rem;
+    margin: 0 0 12px 0;
+}
+
+.user-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Бейджики ролей */
+.badge-role, .badge-status {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.badge-status {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+    .badge-status.badge-inactive {
+        background: rgba(255, 255, 255, 0.05);
+        color: #888;
+    }
+
+.user-card-date {
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+
+/* --- MODAL WINDOW --- */
+.modal-backdrop-blur {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-card-custom {
+    background: #333333;
+    padding: 40px;
+    border-radius: 25px;
+    width: 420px;
+    text-align: center;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    animation: slideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+}
+
+.modal-avatar-lg {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 20px auto;
+}
+
+    .modal-avatar-lg img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 3px solid rgba(255,255,255,0.1);
+    }
+
+.modal-name {
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.modal-email {
+    color: #9ca3af;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+}
+
+.modal-badges {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.modal-joined-date {
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin-bottom: 30px;
+}
+
+/* Кнопки модалки */
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 12px 0;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+    border: none;
+}
+
+.btn-activate {
+    background: #4d4d4d;
+    color: #fff;
+}
+
+    .btn-activate:hover {
+        background: #5a5a5a;
+    }
+
+.btn-edit {
+    background: transparent;
+    border: 1px solid #ff4d4d; /* Стилизовано под Delete со скрина, но делает Edit */
+    color: #ff4d4d;
+}
+
+    .btn-edit:hover {
+        background: rgba(255, 77, 77, 0.1);
+    }
+
+.btn-save {
+    background: #ffffff;
+    color: #000000;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+}
+
+/* Анимации для модалки */
+.edit-form-animate {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+
+
+
+
+/* 1. Тип объекта над фото */
+.property-type-tag {
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+/* 2. Галерея */
+.featured-image-wrapper {
+    width: 100%;
+    height: 500px; /* Можно настроить или использовать aspect-ratio: 16/9 */
+    border-radius: 24px;
+    overflow: hidden;
+    background: #1a1a1a;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.featured-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Это "подтягивает" размер фото, заполняя контейнер без искажений */
+    transition: opacity 0.3s ease;
+}
+
+.thumbnails-scroll {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.thumb-wrapper {
+    flex: 0 0 120px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: 0.2s;
+}
+
+    .thumb-wrapper.active {
+        border-color: #f39c12;
+    }
+
+    .thumb-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.6;
+    }
+
+    .thumb-wrapper:hover img, .thumb-wrapper.active img {
+        opacity: 1;
+    }
+
+
+
+.mud-input-control.mud-input-input-control {
+    background: #2d2d2d !important; /* Убирает прозрачность инпута */
+    border-radius: 12px;
+}
+
+
+
+.mud-day {
+    color: white !important;
+}
+
+.mud-selected {
+    background-color: #f39c12 !important;
+}
+
+/* 4. Очистка бара цены */
+.price-tag-large {
+    font-size: 3rem;
+    font-weight: 800;
+}
+
+
+    
+
+  
+/* Автоматически растущее поле комментария */
+.auto-grow-field {
+    border-radius: 25px !important; /* Для многострочного поля чуть меньше закругление */
+    padding: 12px 25px !important;
+}
+
+    .auto-grow-field textarea {
+        color: #333 !important;
+        line-height: 1.5;
+        padding-top: 5px;
+    }
+
+/* Настройка иконки календаря/времени внутри инпута */
+.mud-input-adornment-end {
+    margin-right: 0;
+}
+
+.mud-icon-root.mud-svg-icon {
+    fill: #777 !important;
+}
+
+/* Кнопка отправки заявки */
+.btn-submit-showing {
+    background: #ffffff;
+    color: #000;
+    border: none;
+    padding: 16px;
+    font-size: 1.1rem;
+    margin-top: 10px;
+}
+
+    .btn-submit-showing:hover {
+        background: #f39c12;
+        color: #fff;
+        transform: scale(1.02);
+    }
+
+/* Заголовок страницы и ссылки */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #888;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+    .back-link:hover {
+        color: #fff;
+    }
+
+/* Тег типа объекта (над фото) */
+.property-type-tag {
+    color: #f39c12;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+/* Скролл миниатюр */
+.thumbnails-scroll {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.thumb-wrapper {
+    width: 100px;
+    height: 70px;
+    border-radius: 15px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: 0.3s;
+    flex-shrink: 0;
+}
+
+    .thumb-wrapper.active {
+        border-color: #f39c12;
+    }
+
+    .thumb-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+/* Контейнер-обертка для выравнивания пикеров MudBlazor */
+.input-wrapper-elite {
+    background: #e9ecef !important; /* Тот же серый, что в Add User */
+    border-radius: 50px;
+    padding: 5px 20px;
+    display: flex;
+    align-items: center;
+    height: 55px;
+}
+
+
+.custom-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #888;
+    margin-left: 15px;
+    margin-bottom: 8px;
+    display: block;
+    letter-spacing: 1px;
+}
+
+/* Поле комментария */
+.comment-area {
+    border-radius: 20px !important;
+    resize: none;
+    min-height: 100px;
+    padding-top: 15px !important;
+}
+
+/* Исправление иконок в пикерах */
+.mud-input-adornment-end .mud-icon-root {
+    fill: #555 !important;
+    margin-right: 5px;
+}
+
+/* Сама карточка формы */
+.booking-card {
+    background: #2a2a2a; /* Темный фон как в User Management */
+    padding: 35px;
+    border-radius: 30px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+/* Общий стиль для всех контейнеров ввода (пилюль) */
+.elite-input-container, .elite-field {
+    background-color: #f0f2f5 !important; /* Светло-серый фон как в Add User */
+    border-radius: 50px !important;
+    border: none !important;
+    padding: 12px 25px !important;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    min-height: 55px;
+    box-sizing: border-box;
+}
+
+/* Стилизация текстовых полей (Имя, Телефон, Комментарий) */
+.elite-field {
+    color: #333 !important;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.elite-textarea {
+    border-radius: 25px !important; /* Для текста чуть меньше закругление */
+    resize: none;
+    align-items: flex-start;
+}
+
+/* Убираем черные фоны внутри MudBlazor компонентов */
+.mud-input-transparent .mud-input-slot {
+    background: transparent !important;
+    color: #333 !important;
+    padding: 0 !important;
+}
+
+.mud-input-transparent .mud-input-control-input-container {
+    padding: 0 !important;
+}
+
+/* Скрываем линии под инпутами MudBlazor */
+.mud-input-transparent .mud-input-underline:before,
+.mud-input-transparent .mud-input-underline:after {
+    display: none !important;
+}
+
+/* Иконки календаря и времени — делаем их серыми */
+.mud-input-transparent .mud-icon-root {
+    fill: #777 !important;
+}
+
+/* Лейблы над полями */
+.custom-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #999;
+    margin-left: 15px;
+    margin-bottom: 6px;
+    display: block;
+    letter-spacing: 1.2px;
+}
+
+/* Сама карточка в сайдбаре */
+.booking-card {
+    background: #2a2a2a; /* Темно-серый фон карточки */
+    padding: 30px;
+    border-radius: 35px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+/* Hero Блок */
+.hero-block {
+    height: 60vh;
+    min-height: 400px;
+    background: url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=80') center/cover;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -80px; /* Чтобы заходило под прозрачную навигацию */
+    margin-bottom: 50px;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(33,33,33,1));
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
+    .hero-content h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+        background: linear-gradient(45deg, #fff, #f39c12);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+/* Поисковая строка в стиле Premium */
+.search-bar-premium {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    padding: 10px;
+    border-radius: 50px;
+    display: flex;
+    margin-top: 30px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+    .search-bar-premium input {
+        background: transparent;
+        border: none;
+        padding: 15px 25px;
+        color: white;
+        width: 100%;
+        outline: none;
+    }
+
+.search-btn {
+    background: #f39c12;
+    border: none;
+    padding: 0 35px;
+    border-radius: 40px;
+    color: #000;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* Карточки и теги */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.filter-pills {
+    display: flex;
+    gap: 10px;
+}
+
+.pill {
+    padding: 8px 20px;
+    background: #2d2d2d;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: 0.3s;
+}
+
+    .pill.active, .pill:hover {
+        background: #f39c12;
+        color: #000;
+    }
+
+.card-category {
+    color: #f39c12;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+}
+
+.card-specs {
+    display: flex;
+    gap: 15px;
+    color: #888;
+    font-size: 0.85rem;
+    margin: 15px 0;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 15px;
+}
+
+.btn-view-circle {
+    width: 45px;
+    height: 45px;
+    background: #f39c12;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+    .btn-view-circle:hover {
+        transform: scale(1.1);
+        background: #fff;
+    }
+
+/* Скелетон */
+.skeleton-card {
+    height: 400px;
+    background: linear-gradient(90deg, #2d2d2d 25%, #3d3d3d 50%, #2d2d2d 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 30px;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+
+/* Заголовок секции */
+.section-subtitle {
+    color: #888;
+    margin-top: 5px;
+    font-size: 1rem;
+}
+
+/* Пустое состояние */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 100px;
+    color: #555;
+    font-style: italic;
+}
+/* Фиксируем высоту и поведение сетки */
+.property-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    align-items: stretch; /* Растягивает все карточки в ряду до одной высоты */
+}
+
+/* Карточка как Flex-контейнер */
+.luxury-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Занимает всю высоту ячейки сетки */
+    background: #242424;
+    border-radius: 25px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+/* Фиксируем размер изображения (золотое сечение или 16:9) */
+.card-image-box {
+    position: relative;
+    width: 100%;
+    height: 220px; /* Фиксированная высота для всех фото */
+    overflow: hidden;
+}
+
+.card-img-fixed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Обрезает лишнее, сохраняя пропорции */
+}
+
+/* Тело карточки */
+.card-body-luxury {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Позволяет телу занимать все оставшееся место */
+}
+
+/* Основная инфо-часть */
+.card-main-info {
+    flex-grow: 1; /* Выталкивает footer вниз */
+}
+
+/* Ограничиваем адрес двумя строками, чтобы не ломать верстку */
+.card-address-title {
+    font-size: 1.1rem;
+    line-height: 1.4;
+    margin: 10px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Максимум 2 строки */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Футер всегда внизу */
+.card-footer {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+/* Сетка для полей 2х2 как на скриншоте "Новый сотрудник" */
+.elite-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.elite-label {
+    color: #888;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.elite-select {
+    appearance: none;
+    cursor: pointer;
+}
+
+/* Эффект при наведении и фокусе */
+.elite-input:hover {
+    border-color: #444;
+}
+
+.elite-input:focus {
+    outline: none;
+    background: #252525;
+    border-color: #f39c12; /* Фирменный оранжевый из лого */
+    box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.1);
+}
+
+    .elite-input:focus + .input-icon,
+    .input-wrapper:focus-within .input-icon {
+        color: #f39c12;
+    }
+
+/* Плейсхолдер */
+.elite-input::placeholder {
+    color: #555;
+}
+
+/* Ошибки валидации */
+.error-msg {
+    color: #ff5e5e;
+    font-size: 0.75rem;
+    margin-top: 4px;
+    margin-left: 4px;
+}
+
+/* Адаптивность для мобилок: превращаем 2 колонки в 1 */
+@media (max-width: 580px) {
+    .elite-form-grid {
+        grid-template-columns: 1fr;
+    }
+}

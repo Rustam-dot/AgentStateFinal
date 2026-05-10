@@ -1,0 +1,495 @@
+﻿@page "/clients"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Administrator,Manager,Realtor")]
+@using System.Net.Http.Json
+@inject HttpClient Http
+
+<div class="clients-page">
+    <!-- Animated Background -->
+    <div class="bg-gradient"></div>
+    
+    <div class="clients-container">
+        <!-- Header -->
+        <div class="page-header animate-fade-in">
+            <div class="header-left">
+                <h1 class="page-title">База <span class="purple-text">клиентов</span></h1>
+                <p class="page-subtitle">Активные зарегистрированные клиенты компании</p>
+            </div>
+            <div class="stats-badge">
+                <i class="fas fa-users"></i>
+                <span>@(clients?.Count ?? 0) записей</span>
+            </div>
+        </div>
+
+        @if (clients != null && clients.Any())
+        {
+            <div class="search-bar animate-fade-in" style="animation-delay: 0.1s;">
+                <i class="fas fa-search"></i>
+                <input type="text" @bind="searchText" @bind:event="oninput" placeholder="Поиск по имени, телефону или email..." />
+            </div>
+        }
+
+        @if (clients == null)
+        {
+            <div class="loader-container">
+                <div class="premium-spinner"></div>
+            </div>
+        }
+        else if (!clients.Any())
+        {
+            <div class="empty-state animate-fade-in">
+                <i class="fas fa-user-friends"></i>
+                <h3>База данных пуста</h3>
+                <p>Как только пользователи пройдут регистрацию, их профили отобразятся здесь</p>
+            </div>
+        }
+        else if (!FilteredClients.Any())
+        {
+            <div class="empty-state animate-fade-in">
+                <i class="fas fa-search-minus"></i>
+                <h3>Совпадений не найдено</h3>
+                <p>По вашему запросу «@searchText» нет результатов</p>
+            </div>
+        }
+        else
+        {
+            <div class="clients-grid">
+                @foreach (var client in FilteredClients)
+                {
+                    <div class="client-card animate-fade-up">
+                        <div class="card-body">
+                            <div class="avatar-wrapper">
+                                @if (!string.IsNullOrWhiteSpace(client.AvatarUrl))
+                                {
+                                    <img src="@client.AvatarUrl" alt="@client.FullName" class="client-avatar" />
+                                }
+                                else
+                                {
+                                    <div class="avatar-placeholder">
+                                        @GetInitial(client)
+                                    </div>
+                                }
+                            </div>
+                            <div class="client-info">
+                                <h4>@(string.IsNullOrWhiteSpace(client.FullName) ? "Без имени" : client.FullName)</h4>
+                                <p class="client-email">@client.Email</p>
+                                <div class="client-meta">
+                                    <span class="meta-item">
+                                        <i class="fas fa-phone"></i>
+                                        @(string.IsNullOrWhiteSpace(client.Phone) ? "Не указан" : client.Phone)
+                                    </span>
+                                </div>
+                                <div class="client-meta">
+                                    <span class="meta-item">
+                                        <i class="fas fa-calendar"></i>
+                                        @client.CreatedAt.ToString("dd.MM.yyyy")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="client-id">ID: #@client.UserId</span>
+                            <span class="status-badge @(client.IsActive ? "active" : "inactive")">
+                                <span class="status-dot"></span>
+                                @(client.IsActive ? "Активен" : "Заблокирован")
+                            </span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary: #8b5cf6;
+        --primary-dark: #7c3aed;
+        --primary-light: #a78bfa;
+        --primary-bg: #f5f3ff;
+        --bg-page: #f8fafc;
+        --bg-card: #ffffff;
+        --text-dark: #0f172a;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --success: #10b981;
+        --danger: #ef4444;
+        --shadow: 0 4px 6px rgba(0,0,0,0.05);
+        --shadow-lg: 0 10px 30px rgba(139, 92, 246, 0.15);
+    }
+
+    .clients-page {
+        min-height: 100vh;
+        background: var(--bg-page);
+        padding: 100px 40px 40px;
+        position: relative;
+    }
+
+    .bg-gradient {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .clients-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 32px;
+        gap: 20px;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0;
+        color: var(--text-dark);
+    }
+
+    .purple-text {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        margin: 4px 0 0;
+        font-size: 1.1rem;
+    }
+
+    .stats-badge {
+        background: white;
+        border: 2px solid rgba(139, 92, 246, 0.2);
+        padding: 12px 24px;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--primary);
+        font-weight: 700;
+        box-shadow: var(--shadow);
+    }
+
+    .search-bar {
+        position: relative;
+        margin-bottom: 40px;
+        max-width: 600px;
+    }
+
+    .search-bar i {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary);
+        font-size: 1.1rem;
+        pointer-events: none;
+    }
+
+    .search-bar input {
+        width: 100%;
+        background: white;
+        border: 2px solid var(--border);
+        color: var(--text-dark);
+        padding: 16px 20px 16px 52px;
+        border-radius: 16px;
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.3s;
+        box-shadow: var(--shadow);
+    }
+
+    .search-bar input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+
+    .clients-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 24px;
+    }
+
+    .client-card {
+        background: var(--bg-card);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: var(--shadow);
+    }
+
+    .client-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .card-body {
+        padding: 28px;
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+    }
+
+    .avatar-wrapper {
+        flex-shrink: 0;
+    }
+
+    .client-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--primary-bg);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+ 
+
+    .client-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .client-info h4 {
+        margin: 0 0 6px 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .client-email {
+        margin: 0 0 12px 0;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+    }
+
+    .client-meta {
+        margin-bottom: 8px;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .meta-item i {
+        color: var(--primary);
+        width: 16px;
+    }
+
+    .card-footer {
+        background: var(--bg-page);
+        padding: 16px 28px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid var(--border);
+    }
+
+    .client-id {
+        color: var(--text-muted);
+        font-family: monospace;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .status-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .status-badge.active {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+    }
+
+    .status-badge.inactive {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .loader-container {
+        text-align: center;
+        padding: 100px 20px;
+    }
+
+    .premium-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid var(--primary-bg);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 1s infinite linear;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 100px 40px;
+        background: white;
+        border-radius: 24px;
+        border: 2px dashed var(--border);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--primary);
+        opacity: 0.3;
+        margin-bottom: 24px;
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 0 0 12px;
+    }
+
+    .empty-state p {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+        margin: 0;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @@keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease forwards;
+    }
+
+    .animate-fade-up {
+        opacity: 0;
+        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @@media (max-width: 1024px) {
+        .clients-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .clients-page {
+            padding: 80px 20px 20px;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+        }
+
+        .clients-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .card-body {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .client-meta {
+            justify-content: center;
+        }
+
+        .card-footer {
+            flex-direction: column;
+            gap: 12px;
+        }
+    }
+</style>
+
+@code {
+    private List<ClientDto>? clients;
+    private string searchText = "";
+
+    private IEnumerable<ClientDto> FilteredClients =>
+        string.IsNullOrWhiteSpace(searchText)
+            ? clients ?? new List<ClientDto>()
+            : (clients ?? new List<ClientDto>()).Where(c => 
+                (c.FullName != null && c.FullName.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                (c.Phone != null && c.Phone.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                (c.Email != null && c.Email.Contains(searchText, StringComparison.OrdinalIgnoreCase)));
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await Task.Delay(300);
+            clients = await Http.GetFromJsonAsync<List<ClientDto>>("clients");
+        }
+        catch
+        {
+            clients = new();
+        }
+    }
+
+    private string GetInitial(ClientDto client)
+    {
+        if (!string.IsNullOrWhiteSpace(client.FullName))
+            return client.FullName.Substring(0, 1).ToUpper();
+        
+        if (!string.IsNullOrWhiteSpace(client.Login))
+            return client.Login.Substring(0, 1).ToUpper();
+            
+        return "U";
+    }
+
+    public class ClientDto
+    {
+        public int UserId { get; set; }
+        public string Login { get; set; } = "";
+        public string Email { get; set; } = "";
+        public bool IsActive { get; set; }
+        public string FullName { get; set; } = "";
+        public string Phone { get; set; } = "";
+        public DateTime CreatedAt { get; set; }
+        public string? AvatarUrl { get; set; }
+    }
+}

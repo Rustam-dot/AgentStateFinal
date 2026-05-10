@@ -1,0 +1,604 @@
+﻿@page "/deals/create"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Client")]
+@using System.Net.Http.Json
+@using System.ComponentModel.DataAnnotations
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<div class="deal-create-page">
+    <!-- Animated Background -->
+    <div class="bg-gradient"></div>
+    
+    <div class="deal-container">
+        <!-- Header -->
+        <div class="page-header animate-fade-in">
+            <button class="btn-back" @onclick='() => Navigation.NavigateTo("/my-showings")'>
+                <i class="fas fa-arrow-left"></i>
+                <span>Назад</span>
+            </button>
+            <div class="header-content">
+                <h1 class="page-title">Оформление <span class="purple-text">сделки</span></h1>
+                <p class="page-subtitle">Финальный шаг к вашей новой недвижимости</p>
+            </div>
+        </div>
+
+        @if (!isValid)
+        {
+            <div class="error-card animate-fade-in">
+                <div class="error-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Доступ ограничен</h3>
+                <p>@errorMessage</p>
+                <button class="btn-primary" @onclick='() => Navigation.NavigateTo("/my-showings")'>
+                    Вернуться к показам
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="form-card animate-fade-up">
+                <!-- Deal Info Header -->
+                <div class="deal-info-header">
+                    <div class="deal-id">
+                        <i class="fas fa-hashtag"></i>
+                        <span>Показ #@ShowingId</span>
+                    </div>
+                    <span class="status-badge confirmed">
+                        <i class="fas fa-check-circle"></i>
+                        Подтверждено
+                    </span>
+                </div>
+
+                <EditForm Model="dealModel" OnValidSubmit="SubmitDeal">
+                    <DataAnnotationsValidator />
+
+                    <!-- Deal Type -->
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-file-contract"></i>
+                            Тип сделки
+                        </label>
+                        <div class="select-wrapper">
+                            <select @bind="dealModel.DealTypeId" class="form-select">
+                                <option value="11">Договор купли-продажи</option>
+                                <option value="12">Долгосрочная аренда</option>
+                                <option value="13">Краткосрочная аренда</option>
+                            </select>
+                            <i class="fas fa-chevron-down select-arrow"></i>
+                        </div>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-coins"></i>
+                            Сумма сделки
+                        </label>
+                        <div class="input-wrapper">
+                            <span class="currency-prefix">₽</span>
+                            <InputNumber @bind-Value="dealModel.Amount" class="form-input" placeholder="0" />
+                        </div>
+                        <ValidationMessage For="@(() => dealModel.Amount)" class="error-text" />
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Нажимая кнопку, вы инициируете процесс подготовки официальных документов нашим юридическим отделом.</p>
+                    </div>
+
+                    <!-- Error Banner -->
+                    @if (!string.IsNullOrEmpty(submitError))
+                    {
+                        <div class="error-banner animate-fade-in">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>@submitError</span>
+                        </div>
+                    }
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-submit @(isSubmitting ? "loading" : "")" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <div class="spinner-small"></div>
+                            <span>Отправка...</span>
+                        }
+                        else
+                        {
+                            <span>Подтвердить и отправить</span>
+                            <i class="fas fa-paper-plane"></i>
+                        }
+                    </button>
+                </EditForm>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary: #8b5cf6;
+        --primary-dark: #7c3aed;
+        --primary-light: #a78bfa;
+        --primary-bg: #f5f3ff;
+        --bg-page: #f8fafc;
+        --bg-card: #ffffff;
+        --text-dark: #0f172a;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --success: #10b981;
+        --danger: #ef4444;
+        --shadow: 0 4px 6px rgba(0,0,0,0.05);
+        --shadow-lg: 0 10px 30px rgba(139, 92, 246, 0.15);
+    }
+
+    .deal-create-page {
+        min-height: 100vh;
+        background: var(--bg-page);
+        padding: 100px 20px 40px;
+        position: relative;
+    }
+
+    .bg-gradient {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .deal-container {
+        max-width: 600px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .page-header {
+        margin-bottom: 40px;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: white;
+        border: 2px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-muted);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-bottom: 24px;
+    }
+
+    .btn-back:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        transform: translateX(-4px);
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0 0 8px;
+        color: var(--text-dark);
+    }
+
+    .purple-text {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        margin: 0;
+        font-size: 1.05rem;
+    }
+
+    .form-card {
+        background: var(--bg-card);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+    }
+
+    .deal-info-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        background: var(--primary-bg);
+        border-radius: 12px;
+        margin-bottom: 32px;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .deal-id {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .deal-id i {
+        color: var(--primary);
+    }
+
+    .status-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .status-badge.confirmed {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+    }
+
+    .form-group {
+        margin-bottom: 28px;
+    }
+
+    .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 10px;
+    }
+
+    .form-group label i {
+        color: var(--primary);
+        width: 16px;
+    }
+
+    .select-wrapper, .input-wrapper {
+        position: relative;
+    }
+
+    .form-select, .form-input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: white;
+        color: var(--text-dark);
+    }
+
+    .form-select {
+        appearance: none;
+        padding-right: 40px;
+        cursor: pointer;
+    }
+
+    .form-select:focus, .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+
+    .select-arrow {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+    }
+
+    .input-wrapper .currency-prefix {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-weight: 600;
+        pointer-events: none;
+    }
+
+    .form-input {
+        padding-left: 40px;
+    }
+
+    .error-text {
+        color: var(--danger);
+        font-size: 0.85rem;
+        margin-top: 6px;
+        display: block;
+    }
+
+    .info-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px 20px;
+        background: var(--primary-bg);
+        border-radius: 12px;
+        margin: 32px 0;
+        border-left: 4px solid var(--primary);
+    }
+
+    .info-box i {
+        color: var(--primary);
+        font-size: 1.2rem;
+        margin-top: 2px;
+    }
+
+    .info-box p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+    }
+
+    .error-banner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 20px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 12px;
+        color: var(--danger);
+        font-weight: 500;
+        margin-bottom: 24px;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 16px 24px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-submit:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .btn-submit.loading {
+        pointer-events: none;
+    }
+
+    .spinner-small {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    /* Error Card */
+    .error-card {
+        background: var(--bg-card);
+        border-radius: 24px;
+        padding: 50px 40px;
+        text-align: center;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+    }
+
+    .error-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-bg);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+    }
+
+    .error-icon i {
+        font-size: 2rem;
+        color: var(--primary);
+    }
+
+    .error-card h3 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 0 0 12px;
+    }
+
+    .error-card p {
+        color: var(--text-muted);
+        margin: 0 0 32px;
+        line-height: 1.5;
+    }
+
+    .btn-primary {
+        padding: 14px 32px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    /* Animations */
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @@keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease forwards;
+    }
+
+    .animate-fade-up {
+        opacity: 0;
+        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Responsive */
+    @@media (max-width: 600px) {
+        .deal-create-page {
+            padding: 80px 16px 20px;
+        }
+
+        .form-card {
+            padding: 32px 24px;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+        }
+
+        .deal-info-header {
+            flex-direction: column;
+            gap: 12px;
+            text-align: center;
+        }
+    }
+</style>
+
+@code {
+    [Parameter] [SupplyParameterFromQuery] public int ShowingId { get; set; }
+
+    private bool isValid;
+    private string? errorMessage;
+    private string? submitError;
+    private bool isSubmitting = false;
+    private DealModel dealModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ShowingId <= 0)
+        {
+            isValid = false;
+            errorMessage = "Некорректный идентификатор показа.";
+            return;
+        }
+
+        try
+        {
+            var showings = await Http.GetFromJsonAsync<List<MyShowingDto>>("showings/my");
+            var showing = showings?.FirstOrDefault(s => s.ShowingId == ShowingId);
+            if (showing == null)
+            {
+                errorMessage = "Показ не найден или у вас нет прав доступа к нему.";
+                return;
+            }
+
+            if (!showing.CanDeal)
+            {
+                errorMessage = "Сделка по данному объекту еще не подтверждена риелтором. Пожалуйста, ожидайте завершения осмотра.";
+                return;
+            }
+
+            isValid = true;
+        }
+        catch
+        {
+            errorMessage = "Сервис проверки временно недоступен. Попробуйте позже.";
+        }
+    }
+
+    // ✅ ИСПРАВЛЕННЫЙ МЕТОД - без конфликта рендеринга
+    private async Task SubmitDeal()
+    {
+        if (isSubmitting) return;
+        
+        submitError = null;
+        isSubmitting = true;
+        StateHasChanged(); // Обновляем UI для показа индикатора загрузки
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync("deals", new
+            {
+                ShowingId = ShowingId,
+                dealModel.DealTypeId,
+                dealModel.Amount
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+
+                Navigation.NavigateTo("/my-showings", forceLoad: true);
+                return;
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                submitError = !string.IsNullOrEmpty(errorContent) ? errorContent : "Произошла системная ошибка при формировании заявки.";
+            }
+        }
+        catch (Exception ex)
+        {
+            submitError = $"Сетевая ошибка: {ex.Message}";
+        }
+        finally
+        {
+
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    public class DealModel
+    {
+        [Required] public int DealTypeId { get; set; } = 11;
+        [Required] [Range(1, 1000000000, ErrorMessage = "Укажите корректную сумму сделки")] 
+        public decimal Amount { get; set; }
+    }
+
+    public class MyShowingDto
+    {
+        public int ShowingId { get; set; }
+        public bool CanDeal { get; set; }
+    }
+}

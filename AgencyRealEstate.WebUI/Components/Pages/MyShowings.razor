@@ -1,0 +1,554 @@
+﻿@page "/showings"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Administrator,Manager,Realtor")]
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<div class="showings-page">
+    <!-- Background Elements -->
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+
+    <div class="showings-container">
+        <!-- Header -->
+        <div class="page-header animate-fade-in">
+            <div class="header-content">
+                <h1 class="page-title">Биржа <span class="purple-text">показов</span></h1>
+                <p class="page-subtitle">Свободные заявки от клиентов, доступные для бронирования</p>
+            </div>
+            <div class="stats-badge">
+                <i class="fas fa-bullhorn"></i>
+                <span>@(showings?.Count ?? 0) новых</span>
+            </div>
+        </div>
+
+        @if (showings == null)
+        {
+            <div class="loader-container">
+                <div class="premium-spinner"></div>
+                <p style="margin-top: 16px; color: var(--text-muted);">Загрузка заявок...</p>
+            </div>
+        }
+        else if (!showings.Any())
+        {
+            <div class="empty-state animate-fade-in">
+                <div class="empty-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h3>Лист ожидания пуст</h3>
+                <p>На данный момент все заявки разобраны коллегами. Загляните позже.</p>
+            </div>
+        }
+        else
+        {
+            <div class="showings-grid">
+                @foreach (var showing in showings)
+                {
+                    <div class="showing-card animate-fade-up" style="animation-delay: @(showings.IndexOf(showing) * 0.05)s;">
+                        <div class="card-content">
+                            <!-- Time Block -->
+                            <div class="time-section">
+                                <div class="date-badge">
+                                    <span class="day">@showing.ShowingDateTime.ToString("dd")</span>
+                                    <span class="month">@showing.ShowingDateTime.ToString("MMM").ToUpper()</span>
+                                </div>
+                                <div class="time-label">@showing.ShowingDateTime.ToString("HH:mm")</div>
+                            </div>
+
+                            <!-- Content -->
+                            <div class="info-section">
+                                <div class="address-header">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <h4>@showing.PropertyAddress</h4>
+                                </div>
+
+                                <div class="client-info">
+                                    <div class="info-item">
+                                        <span class="info-label">Заявитель</span>
+                                        <span class="info-value">@showing.ClientName</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Контакт</span>
+                                        <a href="tel:@showing.ClientPhone" class="phone-link">@showing.ClientPhone</a>
+                                    </div>
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(showing.Comments))
+                                {
+                                    <div class="comment-box">
+                                        <i class="fas fa-comment-dots"></i>
+                                        <p>@showing.Comments</p>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Action -->
+                            <div class="action-section">
+                                <button class="btn-claim" @onclick="() => AcceptShowing(showing.ShowingId)">
+                                    <span>Взять показ</span>
+                                    <i class="fas fa-calendar-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary: #8b5cf6;
+        --primary-dark: #7c3aed;
+        --primary-light: #a78bfa;
+        --primary-bg: #f5f3ff;
+        --bg-page: #f8fafc;
+        --bg-card: #ffffff;
+        --text-dark: #0f172a;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --shadow: 0 4px 6px rgba(0,0,0,0.05);
+        --shadow-lg: 0 10px 30px rgba(139, 92, 246, 0.15);
+    }
+
+    .showings-page {
+        min-height: 100vh;
+        background: var(--bg-page);
+        padding: 100px 40px 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Background Blobs */
+    .bg-blob {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.4;
+        pointer-events: none;
+        z-index: 0;
+    }
+    .blob-1 {
+        width: 400px; height: 400px;
+        background: #ddd6fe;
+        top: -100px; right: -100px;
+    }
+    .blob-2 {
+        width: 300px; height: 300px;
+        background: #fce7f3;
+        bottom: -50px; left: -50px;
+    }
+
+    .showings-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 40px;
+        gap: 20px;
+    }
+
+    .header-content h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        margin: 0 0 8px;
+        letter-spacing: -0.5px;
+    }
+
+    .purple-text {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    .stats-badge {
+        background: var(--primary-bg);
+        border: 2px solid rgba(139, 92, 246, 0.2);
+        padding: 12px 24px;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 0.95rem;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
+    }
+
+    .stats-badge i {
+        font-size: 1.1rem;
+    }
+
+    /* Grid */
+    .showings-grid {
+        display: grid;
+        gap: 20px;
+    }
+
+    /* Card */
+    .showing-card {
+        background: var(--bg-card);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: var(--shadow);
+    }
+
+    .showing-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .card-content {
+        display: flex;
+        padding: 28px 32px;
+        align-items: center;
+        gap: 32px;
+    }
+
+    /* Time Section */
+    .time-section {
+        text-align: center;
+        min-width: 90px;
+        padding-right: 32px;
+        border-right: 2px solid var(--border);
+    }
+
+    .date-badge {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .date-badge .day {
+        font-size: 2.2rem;
+        font-weight: 900;
+        line-height: 1;
+        color: var(--text-dark);
+    }
+
+    .date-badge .month {
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: var(--primary);
+        text-transform: uppercase;
+        margin-top: 4px;
+    }
+
+    .time-label {
+        margin-top: 12px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        background: var(--primary-bg);
+        padding: 6px 12px;
+        border-radius: 8px;
+        display: inline-block;
+    }
+
+    /* Info Section */
+    .info-section {
+        flex: 1;
+    }
+
+    .address-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .address-header i {
+        color: var(--primary);
+        font-size: 1.2rem;
+    }
+
+    .address-header h4 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text-dark);
+    }
+
+    .client-info {
+        display: flex;
+        gap: 32px;
+        background: var(--bg-page);
+        padding: 16px 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .phone-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s;
+    }
+
+    .phone-link:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    .comment-box {
+        margin-top: 16px;
+        display: flex;
+        gap: 10px;
+        color: var(--text-muted);
+        font-style: italic;
+        font-size: 0.9rem;
+        background: rgba(139, 92, 246, 0.05);
+        padding: 12px 16px;
+        border-radius: 10px;
+        border-left: 3px solid var(--primary);
+    }
+
+    .comment-box i {
+        margin-top: 3px;
+        color: var(--primary);
+    }
+
+    .comment-box p {
+        margin: 0;
+    }
+
+    /* Action Section */
+    .action-section {
+        min-width: 200px;
+    }
+
+    .btn-claim {
+        width: 100%;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border: none;
+        padding: 16px 24px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+    }
+
+    .btn-claim:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.45);
+    }
+
+    .btn-claim:active {
+        transform: translateY(0);
+    }
+
+    /* Loader */
+    .loader-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 100px;
+    }
+
+    .premium-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid var(--primary-bg);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 1s infinite linear;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 100px 40px;
+        background: white;
+        border-radius: 30px;
+        border: 2px dashed var(--border);
+        box-shadow: var(--shadow);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: var(--primary);
+        opacity: 0.3;
+        margin-bottom: 24px;
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 0 0 12px;
+    }
+
+    .empty-state p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        margin: 0;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Animations */
+    @@keyframes fade-in {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @@keyframes fade-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+        opacity: 0;
+        animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-fade-up {
+        opacity: 0;
+        animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Responsive */
+    @@media (max-width: 900px) {
+        .showings-page {
+            padding: 100px 20px 20px;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .header-content h1 {
+            font-size: 1.8rem;
+        }
+
+        .card-content {
+            flex-direction: column;
+            text-align: center;
+            gap: 24px;
+            padding: 24px;
+        }
+
+        .time-section {
+            border-right: none;
+            border-bottom: 2px solid var(--border);
+            padding: 0 0 20px 0;
+            width: 100%;
+        }
+
+        .address-header {
+            justify-content: center;
+        }
+
+        .client-info {
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .action-section {
+            width: 100%;
+        }
+    }
+</style>
+
+@code {
+    private List<MyShowingDto>? showings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadShowings();
+    }
+
+    private async Task LoadShowings()
+    {
+        try
+        {
+            await Task.Delay(300);
+            showings = await Http.GetFromJsonAsync<List<MyShowingDto>>("showings/available");
+        }
+        catch
+        {
+            showings = new();
+        }
+    }
+
+    private async Task AcceptShowing(int id)
+    {
+        try
+        {
+            var response = await Http.PutAsync($"showings/{id}/accept", null);
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadShowings();
+            }
+        }
+        catch { }
+    }
+
+    public class MyShowingDto
+    {
+        public int ShowingId { get; set; }
+        public DateTime ShowingDateTime { get; set; }
+        public string PropertyAddress { get; set; } = "";
+        public string ClientName { get; set; } = "";
+        public string ClientPhone { get; set; } = "";
+        public string? Comments { get; set; }
+        public string? RealtorName { get; set; }
+        public string? ResultName { get; set; }
+        public bool CanDeal { get; set; }
+    }
+}

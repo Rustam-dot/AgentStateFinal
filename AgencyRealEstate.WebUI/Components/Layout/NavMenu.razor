@@ -1,0 +1,674 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject NavigationManager Navigation
+@inject HttpClient Http
+
+<div class="nav-menu-component">
+    <div class="nav-menu-bar">
+        <div class="nav-menu-content">
+            <div class="nav-menu-logo" @onclick='() => Navigation.NavigateTo("/")'>
+                <div class="nav-menu-logo-icon"><i class="fas fa-home"></i></div>
+                <div class="nav-menu-logo-text">РеалтиПро</div>
+            </div>
+            
+            <div class="nav-menu-links">
+                <a href="/properties" class="nav-menu-link"><span>Каталог</span><div class="nav-menu-link-underline"></div></a>
+                <a href="/about" class="nav-menu-link"><span>О нас</span><div class="nav-menu-link-underline"></div></a>
+                <a href="/contacts" class="nav-menu-link"><span>Контакты</span><div class="nav-menu-link-underline"></div></a>
+            </div>
+
+            <div class="nav-menu-actions">
+                <AuthorizeView>
+                    <Authorized>
+                        @{
+                            var user = context.User;
+                            var isAdmin = user.IsInRole("Administrator");
+                            var isManager = user.IsInRole("Manager");
+                            var isRealtor = user.IsInRole("Realtor");
+                            var isClient = user.IsInRole("Client");
+                            var userName = user.Identity?.Name ?? "Пользователь";
+                        }
+
+                        <div class="nav-menu-dropdown-wrapper">
+                            <button class="nav-menu-profile-btn @(isMenuOpen ? "active" : "")" @onclick="ToggleMenu">
+                                <div class="nav-menu-avatar-wrapper">
+                                    @if (!string.IsNullOrEmpty(avatarUrl))
+                                    {
+                                        <img src="@avatarUrl" class="nav-menu-avatar-img" alt="Аватар" />
+                                    }
+                                    else
+                                    {
+                                        <div class="nav-menu-avatar-circle">@(userName.Length > 0 ? userName.Substring(0, 1).ToUpper() : "U")</div>
+                                    }
+                                    <div class="nav-menu-avatar-status"></div>
+                                </div>
+                                <span class="nav-menu-username">@userName</span>
+                                <i class="fas fa-chevron-down nav-menu-arrow @(isMenuOpen ? "rotate" : "")"></i>
+                            </button>
+                            
+                            <div class="nav-menu-dropdown @(isMenuOpen ? "show" : "")">
+                                <div class="nav-menu-dropdown-header">
+                                    <div class="nav-menu-dropdown-avatar">
+                                        @if (!string.IsNullOrEmpty(avatarUrl))
+                                        {
+                                            <img src="@avatarUrl" class="nav-menu-dropdown-avatar-img" alt="Аватар" />
+                                        }
+                                        else
+                                        {
+                                            @(userName.Length > 0 ? userName.Substring(0, 1).ToUpper() : "U")
+                                        }
+                                    </div>
+                                    <div class="nav-menu-dropdown-info">
+                                        <div class="nav-menu-dropdown-name">@userName</div>
+                                        <div class="nav-menu-dropdown-role">
+                                            @if (isAdmin)
+                                            {
+                                                <span>Администратор</span>
+                                            }
+                                            else if (isManager)
+                                            {
+
+                                                <span>Менеджер</span>
+                                            }
+                                            else if (isRealtor)
+                                            {
+
+                                                <span>Риелтор</span>
+                                            }
+                                            else if (isClient)
+                                            {
+
+                                                <span>Клиент</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="nav-menu-divider"></div>
+
+                                <div class="nav-menu-section">
+                                    <a href="/profile" class="nav-menu-item" @onclick="CloseMenu">
+                                        <i class="fas fa-user-circle"></i>
+                                        <span>Мой профиль</span>
+                                        <i class="fas fa-chevron-right nav-menu-arrow-right"></i>
+                                    </a>
+                                </div>
+
+                                @if (isClient)
+                                {
+                                    <div class="nav-menu-section">
+                                        <div class="nav-menu-section-title">Личный кабинет</div>
+                                        <a href="/my-showings" class="nav-menu-item" @onclick="CloseMenu">
+                                            <i class="fas fa-calendar"></i>
+                                            <span>Мои показы</span>
+                                            <i class="fas fa-chevron-right nav-menu-arrow-right"></i>
+                                        </a>
+                                        <a href="/my-deals" class="nav-menu-item" @onclick="CloseMenu">
+                                            <i class="fas fa-handshake"></i>
+                                            <span>Мои сделки</span>
+                                            <i class="fas fa-chevron-right nav-menu-arrow-right"></i>
+                                        </a>
+                                        <a href="/favorites" class="nav-menu-item" @onclick="CloseMenu">
+                                            <i class="fas fa-heart"></i>
+                                            <span>Избранное</span>
+                                            <i class="fas fa-chevron-right nav-menu-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                }
+
+                                @if (isAdmin || isManager)
+                                {
+                                    <div class="nav-menu-section">
+                                        <div class="nav-menu-section-title">Панель управления</div>
+                                        @if (isAdmin)
+                                        {
+                                            <a href="/admin" class="nav-menu-item" @onclick="CloseMenu">
+                                                <i class="fas fa-shield-alt"></i>
+                                                <span>Администрирование</span>
+                                                <i class="fas fa-chevron-right nav-menu-arrow-right"></i>
+                                            </a>
+                                        }
+                                        <a href="/add-property" class="nav-menu-item" @onclick="CloseMenu">
+                                            <i class="fas fa-plus-circle"></i>
+                                            <span>Добавить объект</span>
+                                            <i class="fas fa-chevron-right nav-menu-arrow-right"></i>
+                                        </a>
+                                        <a href="/reports" class="nav-menu-item" @onclick="CloseMenu">
+                                            <i class="fas fa-chart-bar"></i>
+                                            <span>Отчёты</span>
+                                            <i class="fas fa-chevron-right nav-menu-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                }
+
+                                @if (isRealtor || isAdmin || isManager)
+                                {
+                                    <div class="nav-menu-section">
+                                        <div class="nav-menu-section-title">Рабочая область</div>
+                                        <a href="/clients" class="nav-menu-item" @onclick="CloseMenu">
+                                            <i class="fas fa-address-book"></i>
+                                            <span>База клиентов</span>
+                                            <i class="fas fa-chevron-right nav-menu-arrow-right"></i>
+                                        </a>
+                                        <a href="/realtor-deals" class="nav-menu-item" @onclick="CloseMenu">
+                                            <i class="fas fa-file-invoice-dollar"></i>
+                                            <span>Сделки</span>
+                                            <i class="fas fa-chevron-right nav-menu-arrow-right"></i>
+                                        </a>
+                                        <a href="/realtor-showings" class="nav-menu-item" @onclick="CloseMenu">
+                                            <i class="fas fa-calendar-check"></i>
+                                            <span>Работа с показами</span>
+                                            <i class="fas fa-chevron-right nav-menu-arrow-right"></i>
+                                        </a>
+                                        <a href="/showings" class="nav-menu-item" @onclick="CloseMenu">
+                                            <i class="fas fa-hand-point-up"></i>
+                                            <span>Показы</span>
+                                            <i class="fas fa-chevron-right nav-menu-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                }
+                                
+                                <div class="nav-menu-divider"></div>
+                                
+                                <a href="/logout" class="nav-menu-item nav-menu-logout" @onclick="CloseMenu">
+                                    <i class="fas fa-power-off"></i>
+                                    <span>@(isClient ? "Выйти из аккаунта" : "Завершить сеанс")</span>
+                                </a>
+                            </div>
+                        </div>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a href="/login" class="nav-menu-btn-login"><span>Вход</span></a>
+                        <a href="/register" class="nav-menu-btn-register"><span>Регистрация</span><i class="fas fa-arrow-right"></i></a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* === ИЗОЛИРОВАННЫЕ СТИЛИ НАВИГАЦИИ === */
+    /* Все классы имеют префикс nav-menu- для предотвращения конфликтов */
+    
+    .nav-menu-component {
+        --nav-primary: #7c3aed;
+        --nav-primary-light: #8b5cf6;
+        --nav-primary-dark: #6d28d9;
+        --nav-primary-bg: #f3e8ff;
+        --nav-text-dark: #0f172a;
+        --nav-text-muted: #64748b;
+        --nav-border: #e2e8f0;
+        --nav-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-menu-bar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        height: 80px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 10000;
+    }
+
+    .nav-menu-content {
+        max-width: 1440px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 48px;
+    }
+
+    .nav-menu-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: transform 0.3s;
+    }
+
+        .nav-menu-logo:hover {
+            transform: scale(1.05);
+        }
+
+    .nav-menu-logo-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--nav-primary), var(--nav-primary-light));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+
+    .nav-menu-logo-text {
+        background: linear-gradient(135deg, var(--nav-primary), var(--nav-primary-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .nav-menu-links {
+        display: flex;
+        gap: 8px;
+    }
+
+    .nav-menu-link {
+        position: relative;
+        padding: 10px 20px;
+        color: var(--nav-text-dark);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        border-radius: 10px;
+        transition: all 0.3s;
+        overflow: hidden;
+    }
+
+        .nav-menu-link::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--nav-primary-bg);
+            opacity: 0;
+            transition: opacity 0.3s;
+            border-radius: 10px;
+        }
+
+        .nav-menu-link:hover::before {
+            opacity: 1;
+        }
+
+        .nav-menu-link span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-menu-link:hover {
+            color: var(--nav-primary);
+            transform: translateY(-2px);
+        }
+
+    .nav-menu-link-underline {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--nav-primary), var(--nav-primary-light));
+        transition: all 0.3s;
+        transform: translateX(-50%);
+        border-radius: 2px;
+    }
+
+    .nav-menu-link:hover .nav-menu-link-underline {
+        width: 60%;
+    }
+
+    .nav-menu-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .nav-menu-btn-login,
+    .nav-menu-btn-register {
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nav-menu-btn-login {
+        color: var(--nav-text-dark);
+        text-decoration: none;
+    }
+
+        .nav-menu-btn-login:hover {
+            color: var(--nav-primary);
+        }
+
+    .nav-menu-btn-register {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--nav-primary), var(--nav-primary-light));
+        color: white;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+
+        .nav-menu-btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+        }
+
+    .nav-menu-dropdown-wrapper {
+        position: relative;
+    }
+
+    .nav-menu-profile-btn {
+        background: white;
+        border: 1px solid var(--nav-border);
+        border-radius: 50px;
+        padding: 6px 6px 6px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--nav-text-dark);
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 0.95rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+        .nav-menu-profile-btn:hover,
+        .nav-menu-profile-btn.active {
+            border-color: var(--nav-primary);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+            transform: translateY(-1px);
+        }
+
+    .nav-menu-avatar-wrapper {
+        position: relative;
+    }
+
+    .nav-menu-avatar-circle {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, var(--nav-primary), var(--nav-primary-light));
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .nav-menu-avatar-img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid white;
+    }
+
+    .nav-menu-avatar-status {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 10px;
+        height: 10px;
+        background: #10b981;
+        border: 2px solid white;
+        border-radius: 50%;
+    }
+
+    .nav-menu-username {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .nav-menu-arrow {
+        font-size: 0.75rem;
+        transition: transform 0.3s;
+        color: var(--nav-text-muted);
+    }
+
+        .nav-menu-arrow.rotate {
+            transform: rotate(180deg);
+            color: var(--nav-primary);
+        }
+
+    /* DROPDOWN MENU - ИЗОЛИРОВАННЫЕ СТИЛИ */
+    .nav-menu-dropdown {
+        position: absolute;
+        top: calc(100% + 12px);
+        right: 0;
+        background: white;
+        width: 320px;
+        min-width: 320px;
+        max-width: 320px;
+        border-radius: 16px;
+        border: 1px solid var(--nav-border);
+        box-shadow: var(--nav-shadow);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px) scale(0.98);
+        transform-origin: top right;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+        z-index: 10001;
+    }
+
+        .nav-menu-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+    .nav-menu-dropdown-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px 20px;
+        background: linear-gradient(135deg, var(--nav-primary-bg), #faf5ff);
+        border-bottom: 1px solid var(--nav-border);
+    }
+
+    .nav-menu-dropdown-avatar {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, var(--nav-primary), var(--nav-primary-light));
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .nav-menu-dropdown-avatar-img {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid white;
+    }
+
+    .nav-menu-dropdown-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .nav-menu-dropdown-name {
+        font-weight: 700;
+        color: var(--nav-text-dark);
+        font-size: 0.95rem;
+        margin-bottom: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .nav-menu-dropdown-role {
+        font-size: 0.75rem;
+        color: var(--nav-primary);
+        font-weight: 600;
+    }
+
+    .nav-menu-divider {
+        height: 1px;
+        background: var(--nav-border);
+        margin: 6px 0;
+    }
+
+    .nav-menu-section {
+        padding: 4px 0;
+    }
+
+    .nav-menu-section-title {
+        padding: 10px 20px 6px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #9ca3af;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .nav-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 20px;
+        color: var(--nav-text-dark);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        position: relative;
+    }
+
+        .nav-menu-item:hover {
+            background: var(--nav-primary-bg);
+            color: var(--nav-primary);
+            padding-left: 24px;
+        }
+
+        .nav-menu-item i:first-child {
+            width: 18px;
+            text-align: center;
+            color: var(--nav-primary);
+            opacity: 0.8;
+            flex-shrink: 0;
+        }
+
+        .nav-menu-item:hover i:first-child {
+            opacity: 1;
+        }
+
+        .nav-menu-item span {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+    .nav-menu-arrow-right {
+        font-size: 0.7rem;
+        color: #cbd5e1;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .nav-menu-item:hover .nav-menu-arrow-right {
+        color: var(--nav-primary);
+        transform: translateX(3px);
+    }
+
+    .nav-menu-logout {
+        color: #ef4444 !important;
+        margin-top: 4px;
+        border-top: 1px solid var(--nav-border);
+        padding-top: 12px;
+    }
+
+        .nav-menu-logout:hover {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .nav-menu-logout i:first-child {
+            color: #ef4444;
+        }
+
+    .nav-menu-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(2px);
+        z-index: 9999;
+        animation: navMenuFadeIn 0.2s ease;
+    }
+
+    @@keyframes navMenuFadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .nav-menu-content {
+            padding: 0 20px;
+        }
+
+        .nav-menu-links {
+            display: none;
+        }
+
+        .nav-menu-username {
+            display: none;
+        }
+
+        .nav-menu-dropdown {
+            width: 280px;
+            min-width: 280px;
+            max-width: 280px;
+            right: -10px;
+        }
+    }
+</style>
+
+@code {
+    bool isMenuOpen = false;
+    string? avatarUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var profile = await Http.GetFromJsonAsync<ProfileDto>("profile");
+            avatarUrl = profile?.AvatarUrl;
+        }
+        catch { }
+    }
+
+    void ToggleMenu() => isMenuOpen = !isMenuOpen;
+    void CloseMenu() => isMenuOpen = false;
+
+    public class ProfileDto
+    {
+        public string? AvatarUrl { get; set; }
+    }
+}

@@ -1,0 +1,308 @@
+﻿@page "/profile"
+@rendermode InteractiveServer
+@using AgencyRealEstate.WebUI.Services
+@using AgencyRealEstate.WebUI.Models
+@using System.Security.Claims
+@attribute [Authorize]
+@inject ApiClient Api
+@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="profile-page">
+    <div class="bg-gradient"></div>
+    
+    <div class="profile-container">
+        <div class="profile-header animate-fade-in">
+            <div class="header-left">
+                <h1 class="page-title">Настройки <span class="purple-text">профиля</span></h1>
+                <p class="page-subtitle">Управление настройками аккаунта и предпочтениями</p>
+            </div>
+            <button class="btn-save-header" @onclick="HandleUpdate" disabled="@isSaving">
+                <i class="fas fa-save"></i>
+                <span>@(isSaving ? "Сохранение..." : "Сохранить изменения")</span>
+            </button>
+        </div>
+
+        <div class="profile-grid">
+            <div class="sidebar-left">
+                <div class="card avatar-card animate-slide-up">
+                    <div class="avatar-wrapper">
+                        @if (!string.IsNullOrEmpty(profileData.AvatarUrl))
+                        {
+                            <img src="@profileData.AvatarUrl" class="avatar-large" alt="Аватар" />
+                        }
+                        else
+                        {
+                            <div class="avatar-large">
+                                @(profileData.FullName?.Length > 0 ? profileData.FullName.Substring(0, 1).ToUpper() : "U")
+                            </div>
+                        }
+                        <label class="avatar-upload">
+                            <i class="fas fa-camera"></i>
+                            <InputFile OnChange="HandleAvatarUpload" hidden accept="image/*" />
+                        </label>
+                    </div>
+                    <h3 class="user-name">@profileData.FullName</h3>
+                    <p class="user-role">@GetRoleName(userRole)</p>
+                    <div class="user-badge">@profileData.Login</div>
+                </div>
+
+                @if (isEmployee)
+                {
+                    <div class="card stats-card animate-slide-up" style="animation-delay: 0.1s;">
+                        <h4>Должность</h4>
+                        <p class="position-text">@(profileData.Position ?? "Не указана")</p>
+                        <p class="position-hint">Должность можно изменить только через администратора</p>
+                    </div>
+                }
+            </div>
+
+            <div class="main-content">
+                <div class="card animate-slide-up" style="animation-delay: 0.1s;">
+                    <div class="card-header">
+                        <i class="fas fa-user"></i>
+                        <h3>Личная информация</h3>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Полное имя</label>
+                            <InputText @bind-Value="profileData.FullName" class="form-input" placeholder="Иванов Иван Иванович" />
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Телефон</label>
+                                <InputText @bind-Value="profileData.Phone" class="form-input" placeholder="+7 (999) 999-99-99" />
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <InputText @bind-Value="profileData.Email" type="email" class="form-input" placeholder="email@example.com" />
+                            </div>
+                        </div>
+
+                        @if (!isEmployee)
+                        {
+                            <div class="form-group">
+                                <label>Паспортные данные</label>
+                                <InputText @bind-Value="profileData.PassportData" class="form-input" placeholder="Серия и номер паспорта" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Пожелания к недвижимости</label>
+                                <InputTextArea @bind-Value="profileData.Preferences" rows="3" class="form-input form-textarea" 
+                                    placeholder="Например: 3-комнатная квартира, центр города, до 15 млн ₽..." />
+                            </div>
+                        }
+
+                        <div class="form-group">
+                            <label>О себе</label>
+                            <InputTextArea @bind-Value="profileData.Bio" rows="2" class="form-input form-textarea" 
+                                placeholder="Расскажите немного о себе..." />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card animate-slide-up" style="animation-delay: 0.2s;">
+                    <div class="card-header">
+                        <i class="fas fa-lock"></i>
+                        <h3>Безопасность</h3>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Логин</label>
+                            <InputText @bind-Value="profileData.Login" class="form-input" readonly />
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Текущий пароль</label>
+                                <InputText @bind-Value="passwordModel.CurrentPassword" type="password" class="form-input" placeholder="••••••••" />
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Новый пароль</label>
+                                <InputText @bind-Value="passwordModel.NewPassword" type="password" class="form-input" placeholder="••••••••" />
+                            </div>
+                            <div class="form-group">
+                                <label>Подтвердите пароль</label>
+                                <InputText @bind-Value="passwordModel.ConfirmPassword" type="password" class="form-input" placeholder="••••••••" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Все стили из предыдущего ответа остаются без изменений */
+    :root {
+        --primary: #8b5cf6;
+        --primary-dark: #7c3aed;
+        --primary-light: #a78bfa;
+        --bg-gradient: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 50%, #ffffff 100%);
+        --card-bg: #ffffff;
+        --text-dark: #1f2937;
+        --text-muted: #6b7280;
+        --border: #e5e7eb;
+        --shadow: 0 4px 6px rgba(0,0,0,0.05);
+        --shadow-lg: 0 20px 40px rgba(139, 92, 246, 0.15);
+    }
+
+    .profile-page { min-height: 100vh; background: var(--bg-gradient); padding: 100px 40px 40px; position: relative; }
+    .bg-gradient { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.1) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+    .profile-container { max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
+    .profile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; animation: fadeIn 0.6s ease; }
+    .page-title { font-size: 2.5rem; font-weight: 800; margin: 0; color: var(--text-dark); }
+    .purple-text { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .page-subtitle { color: var(--text-muted); margin: 4px 0 0; font-size: 1.1rem; }
+    .btn-save-header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.3s; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+    .btn-save-header:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4); }
+    .btn-save-header:disabled { opacity: 0.6; cursor: not-allowed; }
+    .profile-grid { display: grid; grid-template-columns: 350px 1fr; gap: 30px; }
+    .card { background: var(--card-bg); border-radius: 24px; padding: 32px; box-shadow: var(--shadow); border: 1px solid rgba(139, 92, 246, 0.1); transition: all 0.3s; }
+    .card:hover { box-shadow: var(--shadow-lg); }
+    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid #f3f4f6; }
+    .card-header i { font-size: 1.5rem; color: var(--primary); }
+    .card-header h3 { font-size: 1.3rem; font-weight: 700; margin: 0; color: var(--text-dark); }
+    .avatar-card { text-align: center; }
+    .avatar-wrapper { position: relative; display: inline-block; margin-bottom: 20px; }
+    .avatar-large { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3); }
+    .avatar-upload { position: absolute; bottom: 5px; right: 5px; width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.3s; }
+    .avatar-upload:hover { transform: scale(1.1); background: var(--primary); color: white; }
+    .user-name { font-size: 1.5rem; font-weight: 700; margin: 0 0 8px; color: var(--text-dark); }
+    .user-role { color: var(--text-muted); margin: 0 0 12px; font-size: 0.95rem; }
+    .user-badge { display: inline-block; background: #f3f4f6; color: var(--primary); padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+    .stats-card h4 { font-size: 1.1rem; font-weight: 700; margin: 0 0 10px; color: var(--text-dark); }
+    .position-text { font-size: 1.2rem; font-weight: 600; color: var(--text-dark); }
+    .position-hint { font-size: 0.85rem; color: var(--text-muted); }
+    .form-grid { display: flex; flex-direction: column; gap: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group label { font-size: 0.875rem; font-weight: 600; color: var(--text-dark); }
+    .form-input { width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 0.95rem; transition: all 0.3s; background: white; color: var(--text-dark); }
+    .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
+    .form-input[readonly] { background: #f9fafb; cursor: not-allowed; }
+    .form-textarea { resize: vertical; min-height: 80px; }
+    @@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    @@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in { animation: fadeIn 0.6s ease forwards; }
+    .animate-slide-up { opacity: 0; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @@media (max-width: 1024px) { .profile-grid { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
+    @@media (max-width: 768px) { .profile-page { padding: 80px 20px 20px; } .profile-header { flex-direction: column; align-items: flex-start; gap: 20px; } .page-title { font-size: 1.8rem; } }
+</style>
+
+@code {
+    private ProfileDto profileData = new();
+    private PasswordChangeModel passwordModel = new();
+    private bool isSaving = false;
+    private string? errorMessage;
+    private string userRole = "";
+    private bool isEmployee = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try 
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            
+            userRole = user.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+            isEmployee = userRole is "Administrator" or "Manager" or "Realtor";
+            
+            profileData = await Api.GetProfileAsync();
+        }
+        catch { }
+    }
+
+    private string GetRoleName(string role) => role switch
+    {
+        "Administrator" => "Администратор",
+        "Manager" => "Менеджер",
+        "Realtor" => "Риелтор",
+        "Client" => "Клиент",
+        _ => "Пользователь"
+    };
+
+    private async Task HandleAvatarUpload(InputFileChangeEventArgs e)
+    {
+        var file = e.GetMultipleFiles().FirstOrDefault();
+        if (file == null) return;
+        try
+        {
+            var url = await Api.UploadAvatarAsync(file);
+            profileData.AvatarUrl = url;
+            Snackbar.Add("Аватар обновлён!", Severity.Success);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Ошибка: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task HandleUpdate()
+    {
+        errorMessage = null;
+
+        if (!string.IsNullOrEmpty(passwordModel.NewPassword))
+        {
+            if (string.IsNullOrEmpty(passwordModel.CurrentPassword))
+            {
+                errorMessage = "Введите текущий пароль для смены";
+                return;
+            }
+            if (passwordModel.NewPassword.Length < 6)
+            {
+                errorMessage = "Пароль должен содержать минимум 6 символов";
+                return;
+            }
+            if (passwordModel.NewPassword != passwordModel.ConfirmPassword)
+            {
+                errorMessage = "Пароли не совпадают";
+                return;
+            }
+        }
+
+        isSaving = true;
+        try 
+        {
+            var request = new UpdateProfileRequest
+            {
+                Login = profileData.Login,
+                Email = profileData.Email,
+                NewPassword = string.IsNullOrEmpty(passwordModel.NewPassword) ? null : passwordModel.NewPassword,
+                FullName = profileData.FullName,
+                Phone = profileData.Phone,
+                PassportData = profileData.PassportData,
+                Preferences = profileData.Preferences,
+                Bio = profileData.Bio
+            };
+
+            await Api.UpdateProfileAsync(request);
+            passwordModel = new();
+            Snackbar.Add("Профиль успешно обновлен", Severity.Success);
+        }
+        catch (Exception ex) 
+        {
+            errorMessage = "Ошибка: " + ex.Message;
+            Snackbar.Add(errorMessage, Severity.Error);
+        }
+        finally 
+        {
+            isSaving = false;
+        }
+    }
+
+    public class PasswordChangeModel
+    {
+        public string CurrentPassword { get; set; } = "";
+        public string NewPassword { get; set; } = "";
+        public string ConfirmPassword { get; set; } = "";
+    }
+}

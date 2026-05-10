@@ -1,0 +1,48 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigationManager
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(Program).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    @{
+                        var currentUri = NavigationManager.Uri.ToLower();
+                        var baseUri = NavigationManager.BaseUri.ToLower();
+                       
+                        var relativePath = currentUri.Replace(baseUri, "").Trim('/');
+
+                        if (context.User.Identity?.IsAuthenticated == true)
+                        {
+                            <div class="page-wrapper" style="background: #121212; padding: 100px; color: white;">
+                                <h2>Доступ ограничен</h2>
+                                <a href="/">Вернуться домой</a>
+                            </div>
+                        }
+                        else if (relativePath != "login") 
+                        {
+                            NavigationManager.NavigateTo("login");
+                        }
+                    }
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <div class="page-wrapper" style="background: #121212; padding: 100px; color: white;">
+                    <p role="alert">Извините, такой страницы нет.</p>
+                </div>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+
+@code {
+   
+    private class RedirectToLogin : ComponentBase
+    {
+        [Inject] protected NavigationManager Nav { get; set; } = default!;
+        protected override void OnInitialized() => Nav.NavigateTo("login");
+    }
+}

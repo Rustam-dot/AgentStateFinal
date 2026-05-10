@@ -1,0 +1,514 @@
+﻿@page "/booking/{PropertyId:int}"
+@rendermode InteractiveServer
+@using AgencyRealEstate.WebUI.Services
+@using AgencyRealEstate.WebUI.Models
+@using System.ComponentModel.DataAnnotations
+@inject ApiClient Api
+@inject NavigationManager Navigation
+
+<div class="booking-page">
+    <div class="booking-container">
+        <!-- Header -->
+        <div class="booking-header fade-in">
+            <h1 class="page-title">Запись на <span class="purple-text">Показ</span></h1>
+            <p class="page-subtitle">Выберите удобное время для просмотра объекта</p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="progress-steps fade-in delay-100">
+            <div class="step @(GetStepClass(1))">
+                <div class="step-number">
+                    @if (currentStep > 1) { <i class="fas fa-check"></i> } else { <span>1</span> }
+                </div>
+                <div class="step-label">Дата</div>
+            </div>
+            <div class="step-line @(currentStep >= 2 ? "active" : "")"></div>
+            <div class="step @(GetStepClass(2))">
+                <div class="step-number">
+                    @if (currentStep > 2) { <i class="fas fa-check"></i> } else { <span>2</span> }
+                </div>
+                <div class="step-label">Время</div>
+            </div>
+            <div class="step-line @(currentStep >= 3 ? "active" : "")"></div>
+            <div class="step @(currentStep >= 3 ? "active" : "")">
+                <div class="step-number">3</div>
+                <div class="step-label">Контакты</div>
+            </div>
+        </div>
+
+        <div class="booking-content">
+            <!-- Property Card -->
+            <div class="property-card fade-in delay-200">
+                @if (property != null)
+                {
+                    <div class="property-image">
+                        @if (property.PhotoUrls != null && property.PhotoUrls.Any())
+                        {
+                            <img src="@property.PhotoUrls.First()" alt="@property.Title" />
+                        }
+                        else
+                        {
+                            <div class="no-photo"><i class="fas fa-image"></i></div>
+                        }
+                    </div>
+                    <div class="property-info">
+                        <h3 class="property-title">@property.Title</h3>
+                        <div class="property-location">
+                            <i class="fas fa-map-marker-alt"></i> @property.Address
+                        </div>
+                        <div class="property-price">@property.Price?.ToString("N0") ₽</div>
+                        <div class="property-specs">
+                            <div class="spec"><i class="fas fa-bed"></i> <span>@property.Rooms</span></div>
+                            <div class="spec"><i class="fas fa-bath"></i> <span>@property.Bathrooms</span></div>
+                            <div class="spec"><i class="fas fa-ruler-combined"></i> <span>@property.TotalArea м²</span></div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Booking Form Card -->
+            <div class="form-card fade-in delay-300">
+                @if (currentStep == 1)
+                {
+                    <div class="step-content animate-slide-up">
+                        <div class="form-header">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h3>Выберите дату</h3>
+                        </div>
+                        
+                        <div class="input-group">
+                            <input type="text" class="form-input date-display" placeholder="дд.мм.гггг" value="@dateInput" readonly />
+                        </div>
+
+                        <div class="quick-dates">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                var date = DateTime.Today.AddDays(i);
+                                var dayName = date.ToString("ddd", System.Globalization.CultureInfo.GetCultureInfo("ru-RU"));
+                                var dayNum = date.Day;
+                                var month = date.ToString("MMM", System.Globalization.CultureInfo.GetCultureInfo("ru-RU"));
+                                
+                                <button class="@GetQuickDateClass(date)" @onclick="() => SelectDate(date)">
+                                    <div class="day-name">@dayName</div>
+                                    <div class="day-num">@dayNum @month</div>
+                                </button>
+                            }
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn-next" @onclick="GoToStep2" disabled="@IsDateButtonDisabled()">
+                                Далее <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+
+                @if (currentStep == 2)
+                {
+                    <div class="step-content animate-slide-up">
+                        <div class="form-header">
+                            <i class="fas fa-clock"></i>
+                            <h3>Выберите время</h3>
+                        </div>
+
+                        @if (IsToday(selectedDate))
+                        {
+                            <div class="time-warning">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Доступно только будущее время</span>
+                            </div>
+                        }
+
+                        <div class="time-grid">
+                            @foreach (var time in availableTimes)
+                            {
+                                <button class="@GetTimeButtonClass(time)" @onclick="() => TrySelectTime(time)" disabled="@IsTimeDisabled(time)">
+                                    @time
+                                </button>
+                            }
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn-back" @onclick="BackToStep1">
+                                <i class="fas fa-arrow-left"></i> Назад
+                            </button>
+                            <button class="btn-next" @onclick="GoToStep3" disabled="@IsTimeNextDisabled()">
+                                Далее <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+
+                @if (currentStep == 3)
+                {
+                    <div class="step-content animate-slide-up">
+                        <div class="form-header">
+                            <i class="fas fa-user"></i>
+                            <h3>Ваши контакты</h3>
+                        </div>
+
+                        <EditForm Model="@bookingModel" OnValidSubmit="SubmitBooking">
+                            <DataAnnotationsValidator />
+
+                            <div class="form-group">
+                                <label>Имя</label>
+                                <InputText @bind-Value="bookingModel.Name" class="form-input" placeholder="Иван Иванов" />
+                                <ValidationMessage For="@(() => bookingModel.Name)" class="error-message" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Телефон</label>
+                                <input type="text" class="@GetPhoneInputClass()" placeholder="+7 (___) ___-__-__" value="@bookingModel.Phone" @oninput="HandlePhoneInput" maxlength="18" />
+                                @if (!string.IsNullOrEmpty(phoneError))
+                                {
+                                    <div class="error-message">@phoneError</div>
+                                }
+                                <ValidationMessage For="@(() => bookingModel.Phone)" class="error-message" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email (опционально)</label>
+                                <InputText @bind-Value="bookingModel.Email" class="form-input" placeholder="example@mail.ru" />
+                                <ValidationMessage For="@(() => bookingModel.Email)" class="error-message" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Комментарий</label>
+                                <InputTextArea @bind-Value="bookingModel.Comment" class="form-input textarea" rows="3" placeholder="Дополнительные пожелания..." />
+                            </div>
+
+                            <div class="form-actions">
+                                <button class="btn-back" @onclick="BackToStep2">
+                                    <i class="fas fa-arrow-left"></i> Назад
+                                </button>
+                                <button type="submit" class="btn-submit">
+                                    Подтвердить запись
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+@if (showSuccessModal)
+{
+    <div class="modal-backdrop" @onclick="CloseModal">
+        <div class="modal-content animate-scale-up" @onclick:stopPropagation>
+            <div class="success-icon"><i class="fas fa-check"></i></div>
+            <h2>Заявка принята!</h2>
+            <p>Ваша запись на показ успешно оформлена</p>
+            
+            <div class="booking-summary">
+                <div class="summary-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>@selectedDate?.ToString("d MMMM yyyy", new System.Globalization.CultureInfo("ru-RU"))</span>
+                </div>
+                <div class="summary-item">
+                    <i class="fas fa-clock"></i>
+                    <span>@selectedTime</span>
+                </div>
+                <div class="summary-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>@property?.Address</span>
+                </div>
+            </div>
+
+            <p class="confirmation-text">
+                Мы отправили подтверждение на @(string.IsNullOrEmpty(bookingModel.Email) ? "ваш email" : bookingModel.Email)
+            </p>
+
+            <button class="btn-primary" @onclick="CloseModal">Вернуться к каталогу</button>
+        </div>
+    </div>
+}
+
+<style>
+    :root {
+        --primary: #7c3aed; --primary-light: #8b5cf6; --primary-dark: #6d28d9;
+        --primary-bg: #f5f3ff; --text-dark: #0f172a; --text-muted: #64748b;
+        --bg-page: #f8fafc; --bg-card: #ffffff; --border: #e2e8f0;
+        --error: #ef4444; --success: #10b981; --shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+    .booking-page { background: var(--bg-page); min-height: 100vh; padding: 80px 40px 40px; font-family: 'Inter', system-ui, sans-serif; }
+    .booking-container { max-width: 1200px; margin: 0 auto; }
+    .booking-header { text-align: center; margin-bottom: 40px; }
+    .page-title { font-size: 2.5rem; font-weight: 800; color: var(--text-dark); margin: 0 0 12px; }
+    .purple-text { background: linear-gradient(135deg, var(--primary), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .page-subtitle { color: var(--text-muted); font-size: 1.1rem; margin: 0; }
+    .progress-steps { display: flex; align-items: center; justify-content: center; margin-bottom: 48px; gap: 20px; }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .step-number { width: 48px; height: 48px; border-radius: 50%; background: #e2e8f0; color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; transition: all 0.3s; }
+    .step.active .step-number { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); }
+    .step.completed .step-number { background: var(--success); color: white; }
+    .step-label { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); }
+    .step.active .step-label { color: var(--primary); }
+    .step-line { width: 80px; height: 2px; background: #e2e8f0; transition: all 0.3s; }
+    .step-line.active { background: var(--primary); }
+    .booking-content { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+    .property-card { background: var(--bg-card); border-radius: 24px; overflow: hidden; box-shadow: var(--shadow); }
+    .property-image { height: 280px; overflow: hidden; }
+    .property-image img { width: 100%; height: 100%; object-fit: cover; }
+    .no-photo { width: 100%; height: 100%; background: var(--bg-page); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--text-muted); }
+    .property-info { padding: 28px; }
+    .property-title { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); margin: 0 0 12px; }
+    .property-location { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
+    .property-price { font-size: 1.75rem; font-weight: 800; color: var(--primary); margin-bottom: 20px; }
+    .property-specs { display: flex; gap: 16px; }
+    .spec { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 0.9rem; background: var(--bg-page); padding: 8px 12px; border-radius: 8px; }
+    .spec i { color: var(--primary); }
+    .form-card { background: var(--bg-card); border-radius: 24px; padding: 32px; box-shadow: var(--shadow); }
+    .step-content { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .form-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .form-header i { font-size: 1.5rem; color: var(--primary); }
+    .form-header h3 { font-size: 1.3rem; font-weight: 700; color: var(--text-dark); margin: 0; }
+    .input-group { margin-bottom: 24px; }
+    .form-input { width: 100%; padding: 16px 20px; border: 2px solid var(--border); border-radius: 14px; font-size: 1rem; font-family: inherit; transition: all 0.3s; background: var(--bg-page); }
+    .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1); }
+    .form-input.error { border-color: var(--error); }
+    .form-input.date-display { background: #f8fafc; cursor: not-allowed; color: var(--text-muted); }
+    .error-message { color: var(--error); font-size: 0.85rem; margin-top: 6px; }
+    .quick-dates { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .quick-date-btn { flex: 1; min-width: 80px; padding: 16px 12px; border: 2px solid var(--border); border-radius: 14px; background: var(--bg-page); cursor: pointer; transition: all 0.3s; text-align: center; }
+    .quick-date-btn:hover { border-color: var(--primary-light); background: var(--primary-bg); }
+    .quick-date-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
+    .day-name { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+    .day-num { font-size: 1.1rem; font-weight: 700; }
+    .time-warning { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+    .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+    .time-btn { padding: 14px; border: 2px solid var(--border); border-radius: 12px; background: var(--bg-page); font-weight: 600; cursor: pointer; transition: all 0.3s; color: var(--text-dark); }
+    .time-btn:hover:not(.disabled) { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
+    .time-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); }
+    .time-btn.disabled { opacity: 0.4; cursor: not-allowed; text-decoration: line-through; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-dark); font-size: 0.9rem; }
+    .textarea { resize: vertical; min-height: 80px; }
+    .form-actions { display: flex; gap: 12px; margin-top: 24px; }
+    .btn-back, .btn-next, .btn-submit, .btn-primary { padding: 14px 28px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-back { background: transparent; border: 2px solid var(--border); color: var(--text-muted); }
+    .btn-back:hover { border-color: var(--text-dark); color: var(--text-dark); }
+    .btn-next { flex: 1; background: var(--primary); color: white; }
+    .btn-next:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3); }
+    .btn-next:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-submit { flex: 1; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4); }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s ease; }
+    .modal-content { background: white; border-radius: 24px; padding: 40px; max-width: 480px; width: 100%; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
+    .success-icon { width: 80px; height: 80px; border-radius: 50%; background: #dcfce7; color: var(--success); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 24px; }
+    .modal-content h2 { font-size: 1.8rem; font-weight: 800; color: var(--text-dark); margin: 0 0 12px; }
+    .modal-content > p { color: var(--text-muted); margin-bottom: 28px; }
+    .booking-summary { background: var(--bg-page); border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: left; }
+    .summary-item { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: var(--text-dark); font-weight: 600; }
+    .summary-item:last-child { margin-bottom: 0; }
+    .summary-item i { color: var(--primary); width: 20px; }
+    .confirmation-text { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 28px; }
+    .btn-primary { width: 100%; background: var(--primary); color: white; padding: 16px; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; } .delay-300 { animation-delay: 0.3s; }
+    .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .animate-scale-up { animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    @@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @@keyframes scaleUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    @@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @@media (max-width: 968px) { .booking-content { grid-template-columns: 1fr; } .property-card { max-width: 500px; margin: 0 auto; } }
+    @@media (max-width: 640px) {
+        .booking-page { padding: 80px 20px 40px; } .page-title { font-size: 1.8rem; }
+        .progress-steps { gap: 12px; } .step-line { width: 40px; }
+        .time-grid { grid-template-columns: repeat(2, 1fr); }
+        .quick-dates { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
+        .quick-date-btn { min-width: 70px; flex-shrink: 0; }
+    }
+</style>
+
+@code {
+    [Parameter] public int PropertyId { get; set; }
+    
+    private PropertyDto? property;
+    private int currentStep = 1;
+    private DateTime? selectedDate;
+    private string? selectedTime;
+    private string dateInput = "";
+    private string? dateError;
+    private string? phoneError;
+    private string? submitError;
+    private bool showSuccessModal = false;
+    private BookingModel bookingModel = new();
+    
+    private readonly List<string> availableTimes = new()
+    {
+        "09:00", "10:00", "11:00", "12:00", "13:00",
+        "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { property = await Api.GetPropertyAsync(PropertyId); }
+        catch { Navigation.NavigateTo("/properties"); }
+    }
+
+    // === Helper methods for safe attribute binding ===
+    private string GetStepClass(int stepNum) => currentStep >= stepNum ? "active" : currentStep > stepNum ? "completed" : "";
+    private string GetQuickDateClass(DateTime date) => $"quick-date-btn {(selectedDate == date ? "active" : "")}";
+    private string GetTimeButtonClass(string time) => $"time-btn {(selectedTime == time ? "active" : "")} {(IsTimeDisabled(time) ? "disabled" : "")}";
+    private string GetPhoneInputClass() => $"form-input {(phoneError != null ? "error" : "")}";
+    
+    private bool IsDateButtonDisabled() => selectedDate == null;
+    private bool IsTimeNextDisabled() => selectedTime == null;
+    private bool IsTimeDisabled(string time) => IsToday(selectedDate) && IsPastTime(time);
+
+    // === Date handling (read-only, only via buttons) ===
+    private void SelectDate(DateTime date)
+    {
+        if (date.Date < DateTime.Today)
+        {
+            dateError = "Нельзя выбрать прошедшую дату";
+            return;
+        }
+        
+        selectedDate = date;
+        dateInput = date.ToString("dd.MM.yyyy");
+        dateError = null;
+        selectedTime = null;
+    }
+
+    private void GoToStep2() { if (selectedDate.HasValue && string.IsNullOrEmpty(dateError)) currentStep = 2; }
+    private void BackToStep1() { currentStep = 1; }
+
+    // === Time handling ===
+    private void TrySelectTime(string time) { if (!IsTimeDisabled(time)) selectedTime = time; }
+    private void GoToStep3() { if (selectedTime != null) currentStep = 3; }
+    private void BackToStep2() { currentStep = 2; }
+
+    private bool IsToday(DateTime? date) => date?.Date == DateTime.Today;
+    
+    private bool IsPastTime(string time)
+    {
+        if (!IsToday(selectedDate)) return false;
+        if (TimeSpan.TryParse(time, out var ts))
+            return DateTime.Now.TimeOfDay >= ts;
+        return false;
+    }
+
+    // === Phone mask (limited to 11 digits) ===
+    private void HandlePhoneInput(ChangeEventArgs e)
+    {
+        phoneError = null;
+        var input = e.Value?.ToString() ?? "";
+        
+        // Extract only digits
+        var digits = new string(input.Where(char.IsDigit).ToArray());
+        
+        // Limit to 11 digits total
+        if (digits.Length > 11) digits = digits.Substring(0, 11);
+        
+        // Ensure starts with 7
+        if (digits.Length > 0 && digits[0] != '7')
+        {
+            if (digits[0] == '8')
+                digits = "7" + (digits.Length > 1 ? digits.Substring(1) : "");
+            else
+                digits = "7" + digits;
+        }
+        
+        // Limit again after adding 7
+        if (digits.Length > 11) digits = digits.Substring(0, 11);
+        if (digits.Length == 0) digits = "7";
+
+        // Format: +7 (XXX) XXX-XX-XX
+        var f = "+7";
+        if (digits.Length > 1)
+        {
+            var areaCode = digits.Substring(1, Math.Min(3, digits.Length - 1));
+            f += $" ({areaCode}";
+            
+            if (digits.Length > 4)
+            {
+                f += $") {digits.Substring(4, Math.Min(3, digits.Length - 4))}";
+                
+                if (digits.Length > 7)
+                {
+                    f += $"-{digits.Substring(7, Math.Min(2, digits.Length - 7))}";
+                    
+                    if (digits.Length > 9)
+                    {
+                        f += $"-{digits.Substring(9, Math.Min(2, digits.Length - 9))}";
+                    }
+                }
+            }
+        }
+
+        bookingModel.Phone = f;
+        
+        // Validate: must be exactly 18 characters for full format
+        if (f.Length < 18)
+        {
+            phoneError = $"Введите номер полностью (введено {f.Length} из 18 символов)";
+        }
+    }
+
+    // === Submit ===
+    private async Task SubmitBooking()
+    {
+        // Validate phone length
+        if (bookingModel.Phone.Length != 18)
+        {
+            phoneError = "Введите корректный номер телефона (11 цифр)";
+            return;
+        }
+        
+        if (selectedDate == null || selectedTime == null)
+        {
+            submitError = "Дата и время должны быть выбраны";
+            return;
+        }
+
+        try
+        {
+            var timeSpan = TimeSpan.Parse(selectedTime);
+            var request = new CreateShowingRequest
+            {
+                PropertyId = PropertyId,
+                Date = selectedDate.Value,
+                Time = timeSpan,
+                ClientName = bookingModel.Name,
+                ClientPhone = bookingModel.Phone,
+                Email = bookingModel.Email,  
+                Comments = bookingModel.Comment
+            };
+
+            await Api.CreateShowingAsync(request);
+            showSuccessModal = true;
+        }
+        catch (Exception ex)
+        {
+            submitError = $"Ошибка при сохранении: {ex.Message}";
+        }
+    }
+
+    private void CloseModal()
+    {
+        showSuccessModal = false;
+        Navigation.NavigateTo("/properties");
+    }
+
+    public class BookingModel
+    {
+        [Required(ErrorMessage = "Введите ваше имя")]
+        [StringLength(100, MinimumLength = 2, ErrorMessage = "Имя должно быть от 2 до 100 символов")]
+        public string Name { get; set; } = "";
+        
+        [Required(ErrorMessage = "Введите телефон")]
+        [RegularExpression(@"^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$", ErrorMessage = "Введите номер в формате +7 (XXX) XXX-XX-XX")]
+        public string Phone { get; set; } = "+7";
+        
+        [EmailAddress(ErrorMessage = "Введите корректный email")]
+        public string Email { get; set; } = "";
+        
+        public string Comment { get; set; } = "";
+    }
+}

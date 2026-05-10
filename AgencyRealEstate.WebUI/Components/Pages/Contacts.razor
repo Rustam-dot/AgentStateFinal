@@ -1,0 +1,471 @@
+﻿@page "/contacts"
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+
+<div class="contacts-page">
+    <div class="bg-gradient"></div>
+    
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="contacts-hero animate-fade-in">
+            <h1 class="page-title">Кон<span class="purple-text">такты</span></h1>
+            <p class="page-subtitle">Мы всегда на связи и готовы помочь вам</p>
+        </section>
+
+        <div class="contacts-grid">
+            <!-- Contact Info -->
+            <div class="contact-info animate-fade-up">
+                <h2>Свяжитесь с <span class="purple-text">нами</span></h2>
+                <p>Заполните форму, и мы свяжемся с вами в ближайшее время</p>
+                
+                <div class="contact-cards">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Адрес офиса</h3>
+                            <p>г. Москва, ул. Тверская, д. 12, офис 404</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Телефон</h3>
+                            <p>+7 (495) 123-45-67</p>
+                            <p>+7 (800) 555-35-35</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Email</h3>
+                            <p>info@realtipro.ru</p>
+                            <p>support@realtipro.ru</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Режим работы</h3>
+                            <p>Пн-Пт: 09:00 - 20:00</p>
+                            <p>Сб-Вс: 10:00 - 18:00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="social-section">
+                    <h3>Мы в социальных сетях</h3>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-vk"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="contact-form-wrapper animate-fade-up" style="animation-delay: 0.2s;">
+                <div class="contact-form-card">
+                    <h2>Отправить <span class="purple-text">сообщение</span></h2>
+                    
+                    <EditForm Model="contactModel" OnValidSubmit="SubmitForm">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="form-group">
+                            <label>Ваше имя</label>
+                            <InputText @bind-Value="contactModel.Name" class="form-input" placeholder="Иван Иванов" />
+                            <ValidationMessage For="@(() => contactModel.Name)" class="error-message" />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Телефон</label>
+                            <InputText @bind-Value="contactModel.Phone" class="form-input" placeholder="+7 (999) 999-99-99" />
+                            <ValidationMessage For="@(() => contactModel.Phone)" class="error-message" />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Email</label>
+                            <InputText @bind-Value="contactModel.Email" type="email" class="form-input" placeholder="example@mail.ru" />
+                            <ValidationMessage For="@(() => contactModel.Email)" class="error-message" />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Тема обращения</label>
+                            <select @bind="contactModel.Subject" class="form-input">
+                                <option value="">Выберите тему</option>
+                                <option value="buy">Покупка недвижимости</option>
+                                <option value="sell">Продажа недвижимости</option>
+                                <option value="rent">Аренда</option>
+                                <option value="consult">Консультация</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Сообщение</label>
+                            <InputTextArea @bind-Value="contactModel.Message" class="form-input form-textarea" rows="4" placeholder="Ваш вопрос..." />
+                        </div>
+                        
+                        <button type="submit" class="btn-submit" disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <div class="spinner-small"></div>
+                                <span>Отправка...</span>
+                            }
+                            else
+                            {
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Отправить</span>
+                            }
+                        </button>
+                    </EditForm>
+                    
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="success-message">
+                            <i class="fas fa-check-circle"></i>
+                            <span>@successMessage</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Yandex Map Section -->
+        <section class="map-section animate-fade-up">
+            <h2>Как <span class="purple-text">нас найти</span></h2>
+            <div class="map-container">
+                <!-- Контейнер для карты -->
+                <div id="yandex-map" class="yandex-map"></div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary: #7c3aed;
+        --primary-light: #8b5cf6;
+        --primary-dark: #6d28d9;
+        --primary-bg: #f5f3ff;
+        --bg: #f8fafc;
+        --card-bg: #ffffff;
+        --text: #1f2937;
+        --text-muted: #6b7280;
+        --border: #e2e8f0;
+        --success: #10b981;
+        --danger: #ef4444;
+    }
+
+    .contacts-page {
+        min-height: 100vh;
+        background: var(--bg);
+        padding: 100px 20px 60px;
+        position: relative;
+    }
+
+    .bg-gradient {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .contacts-hero {
+        text-align: center;
+        padding: 40px 20px;
+        margin-bottom: 40px;
+    }
+
+    .page-title {
+        font-size: 3rem;
+        font-weight: 800;
+        margin: 0 0 16px;
+        color: var(--text);
+    }
+
+    .purple-text {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .page-subtitle {
+        font-size: 1.25rem;
+        color: var(--text-muted);
+    }
+
+    .contacts-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        margin-bottom: 80px;
+    }
+
+    .contact-info h2 { font-size: 2rem; font-weight: 800; margin: 0 0 16px; color: var(--text); }
+    .contact-info > p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 40px; }
+
+    .contact-cards { display: flex; flex-direction: column; gap: 24px; margin-bottom: 40px; }
+
+    .contact-card {
+        display: flex;
+        gap: 20px;
+        padding: 24px;
+        background: var(--card-bg);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        transition: all 0.3s;
+    }
+
+    .contact-card:hover {
+        border-color: var(--primary);
+        transform: translateX(8px);
+        box-shadow: 0 8px 20px rgba(139, 92, 246, 0.1);
+    }
+
+    .contact-icon {
+        width: 56px;
+        height: 56px;
+        background: var(--primary-bg);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .contact-details h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 8px; color: var(--text); }
+    .contact-details p { margin: 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+    .social-section {
+        background: var(--card-bg);
+        padding: 32px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        text-align: center;
+    }
+
+    .social-section h3 { font-size: 1.25rem; font-weight: 700; margin: 0 0 24px; color: var(--text); }
+    .social-links { display: flex; justify-content: center; gap: 16px; }
+
+    .social-link {
+        width: 50px;
+        height: 50px;
+        background: var(--primary-bg);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 1.5rem;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+
+    .social-link:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-4px);
+    }
+
+    .contact-form-card {
+        background: var(--card-bg);
+        padding: 40px;
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+    }
+
+    .contact-form-card h2 { font-size: 2rem; font-weight: 800; margin: 0 0 32px; color: var(--text); text-align: center; }
+    .form-group { margin-bottom: 24px; }
+    .form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+
+    .form-input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: white;
+        color: var(--text);
+    }
+
+    .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-bg); }
+    .form-textarea { resize: vertical; min-height: 100px; }
+    .error-message { color: var(--danger); font-size: 0.8rem; margin-top: 6px; }
+
+    .btn-submit {
+        width: 100%;
+        padding: 16px 24px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s;
+    }
+
+    .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4); }
+    .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .spinner-small {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    .success-message {
+        margin-top: 24px;
+        padding: 16px;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid var(--success);
+        border-radius: 12px;
+        color: var(--success);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .map-section { margin-bottom: 60px; text-align: center; }
+    .map-section h2 { font-size: 2.5rem; font-weight: 800; margin: 0 0 40px; color: var(--text); }
+    
+    .map-container {
+        background: var(--card-bg);
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+        height: 450px;
+    }
+
+    .yandex-map { width: 100%; height: 100%; }
+
+    @@keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @@keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    @@keyframes spin { to { transform: rotate(360deg); } }
+
+    .animate-fade-in { animation: fadeIn 0.8s ease forwards; }
+    .animate-fade-up { opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    @@media (max-width: 1024px) { .contacts-grid { grid-template-columns: 1fr; gap: 40px; } }
+    @@media (max-width: 768px) {
+        .contacts-page { padding: 80px 16px 40px; }
+        .page-title { font-size: 2rem; }
+        .contact-form-card { padding: 24px; }
+        .map-container { height: 300px; }
+        .contact-card { flex-direction: column; text-align: center; }
+        .contact-icon { margin: 0 auto; }
+    }
+</style>
+
+@code {
+    private ContactFormModel contactModel = new();
+    private bool isSubmitting = false;
+    private string? successMessage;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Вставьте ваш API ключ вместо YOUR_API_KEY
+            // Получить ключ можно на https://developer.tech.yandex.ru/
+            string apiKey = "f508b7a3-d2a7-46a3-84d5-9bbd47ece110"; 
+            
+            await JS.InvokeVoidAsync("eval", $@"
+                if (typeof ymaps === 'undefined') {{
+                    var script = document.createElement('script');
+                    script.src = 'https://api-maps.yandex.ru/2.1/?apikey={apiKey}&lang=ru_RU';
+                    script.onload = function() {{
+                        ymaps.ready(function () {{
+                            var myMap = new ymaps.Map('yandex-map', {{
+                                center: [55.144842, 60.144198], // Координаты (Москва)
+                                zoom: 15,
+                                controls: ['zoomControl', 'fullscreenControl']
+                            }});
+
+                            var myPlacemark = new ymaps.Placemark([55.144842, 60.144198], {{
+                                hintContent: 'РеалтиПро',
+                                balloonContent: '<b>Офис РеалтиПро</b><br>г. Москва, ул. Тверская, д. 12'
+                            }}, {{
+                                preset: 'islands#violetRealEstateIcon'
+                            }});
+
+                            myMap.geoObjects.add(myPlacemark);
+                        }});
+                    }};
+                    document.head.appendChild(script);
+                }}
+            ");
+        }
+    }
+
+    private async Task SubmitForm()
+    {
+        isSubmitting = true;
+        successMessage = null;
+        
+        try
+        {
+            await Task.Delay(1500); // Имитация отправки
+            successMessage = "Сообщение отправлено!";
+            contactModel = new();
+        }
+        catch
+        {
+            // Handle error
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    public class ContactFormModel
+    {
+        [Required(ErrorMessage = "Введите имя")]
+        public string Name { get; set; } = "";
+        
+        [Required(ErrorMessage = "Введите телефон")]
+        public string Phone { get; set; } = "";
+        
+        [Required(ErrorMessage = "Введите email")]
+        [EmailAddress(ErrorMessage = "Некорректный email")]
+        public string Email { get; set; } = "";
+        
+        public string Subject { get; set; } = "";
+        public string Message { get; set; } = "";
+    }
+}

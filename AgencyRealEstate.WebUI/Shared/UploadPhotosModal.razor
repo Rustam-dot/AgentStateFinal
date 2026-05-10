@@ -1,0 +1,115 @@
+﻿@using System.Net.Http.Headers
+@using Microsoft.AspNetCore.Components.Forms
+
+@if (IsVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Загрузить фото</h5>
+                    <button type="button" class="btn-close" @onclick="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <InputFile OnChange="HandleFileSelection" multiple accept="image/*" />
+                    @if (selectedFiles?.Any() == true)
+                    {
+                        <ul class="mt-2">
+                            @foreach (var file in selectedFiles)
+                            {
+                                <li>@file.Name</li>
+                            }
+                        </ul>
+                    }
+                    @if (isUploading)
+                    {
+                        <div class="spinner-border mt-2" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    }
+                    @if (message != null)
+                    {
+                        <div class="alert alert-info mt-2">@message</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="Close">Отмена</button>
+                    <button type="button" class="btn btn-primary" @onclick="Upload" disabled="@(selectedFiles == null || !selectedFiles.Any())">
+                        Загрузить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int PropertyId { get; set; }
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public EventCallback OnPhotosUploaded { get; set; }
+
+    private IReadOnlyList<IBrowserFile>? selectedFiles;
+    private bool isUploading;
+    private string? message;
+
+    [Inject] private HttpClient Http { get; set; } = default!;
+
+    private void HandleFileSelection(InputFileChangeEventArgs e)
+    {
+        
+        selectedFiles = e.GetMultipleFiles(10);
+        message = null;
+    }
+
+    private async Task Upload()
+    {
+        if (selectedFiles == null || selectedFiles.Count == 0) return;
+
+        isUploading = true;
+        message = null;
+        try
+        {
+            using var content = new MultipartFormDataContent();
+            foreach (var file in selectedFiles)
+            {
+                var fileContent = new StreamContent(file.OpenReadStream(10_000_000)); // 10 МБ
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+                content.Add(fileContent, "files", file.Name);
+            }
+
+          
+            var response = await Http.PostAsync($"images/upload/{PropertyId}", content);
+            if (response.IsSuccessStatusCode)
+            {
+                message = "Фото загружены!";
+                selectedFiles = null;
+                await OnPhotosUploaded.InvokeAsync();
+               
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(2000);
+                    await Close();
+                });
+            }
+            else
+            {
+                message = $"Ошибка: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Ошибка: {ex.Message}";
+        }
+        finally
+        {
+            isUploading = false;
+        }
+    }
+
+    private async Task Close()
+    {
+        IsVisible = false;
+        await IsVisibleChanged.InvokeAsync(false);
+    }
+}
