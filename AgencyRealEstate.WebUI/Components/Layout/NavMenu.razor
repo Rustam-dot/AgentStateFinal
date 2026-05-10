@@ -18,6 +18,11 @@
             </div>
 
             <div class="nav-menu-actions">
+                <!-- Кнопка переключения темы -->
+                <button class="nav-menu-theme-toggle" onclick="toggleTheme()" title="Переключить тему">
+                    <i class="fas fa-moon theme-toggle-icon"></i>
+                </button>
+                
                 <AuthorizeView>
                     <Authorized>
                         @{
@@ -201,6 +206,17 @@
         --nav-border: #e2e8f0;
         --nav-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     }
+    
+    [data-theme="dark"] .nav-menu-component {
+        --nav-primary: #8b5cf6;
+        --nav-primary-light: #a78bfa;
+        --nav-primary-dark: #7c3aed;
+        --nav-primary-bg: rgba(124, 58, 237, 0.2);
+        --nav-text-dark: #f0e6ff;
+        --nav-text-muted: #8b7fb8;
+        --nav-border: rgba(124, 58, 237, 0.2);
+        --nav-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
 
     .nav-menu-bar {
         background: rgba(255, 255, 255, 0.95);
@@ -214,6 +230,13 @@
         top: 0;
         left: 0;
         z-index: 10000;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    
+    [data-theme="dark"] .nav-menu-bar {
+        background: rgba(15, 10, 30, 0.95);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(124, 58, 237, 0.2);
     }
 
     .nav-menu-content {
@@ -337,11 +360,20 @@
     .nav-menu-btn-login {
         color: var(--nav-text-dark);
         text-decoration: none;
+        transition: color 0.3s ease;
     }
 
         .nav-menu-btn-login:hover {
             color: var(--nav-primary);
         }
+        
+    [data-theme="dark"] .nav-menu-btn-login {
+        color: #c7b8e0;
+    }
+    
+    [data-theme="dark"] .nav-menu-btn-login:hover {
+        color: #a78bfa;
+    }
 
     .nav-menu-btn-register {
         display: inline-flex;
@@ -353,12 +385,22 @@
         border: none;
         cursor: pointer;
         box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
         .nav-menu-btn-register:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
         }
+        
+    [data-theme="dark"] .nav-menu-btn-register {
+        background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    }
+    
+    [data-theme="dark"] .nav-menu-btn-register:hover {
+        box-shadow: 0 8px 20px rgba(139, 92, 246, 0.6);
+    }
 
     .nav-menu-dropdown-wrapper {
         position: relative;
@@ -646,6 +688,40 @@
             min-width: 280px;
             max-width: 280px;
             right: -10px;
+        }
+        
+        /* Кнопка переключения темы */
+        .nav-menu-theme-toggle {
+            background: transparent;
+            border: 1px solid var(--nav-border);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--nav-text-dark);
+            font-size: 1.1rem;
+        }
+        
+        .nav-menu-theme-toggle:hover {
+            background: var(--nav-primary-bg);
+            border-color: var(--nav-primary);
+            color: var(--nav-primary);
+            transform: rotate(15deg);
+        }
+        
+        [data-theme="dark"] .nav-menu-theme-toggle {
+            border-color: rgba(124, 58, 237, 0.3);
+            color: #c7b8e0;
+        }
+        
+        [data-theme="dark"] .nav-menu-theme-toggle:hover {
+            background: rgba(124, 58, 237, 0.2);
+            border-color: #8b5cf6;
+            color: #a78bfa;
         }
     }
 </style>
